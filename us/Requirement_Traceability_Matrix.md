@@ -9,6 +9,15 @@
 Legend: **US-001** = Family Intake & Role Resolution · **US-002** = Product & Rider Recommendation ·
 **US-003** = Budget Allocation & Premium Calculation · **US-004** = Illustration PDF Generation.
 
+> **Note on "card" terminology (§4, §6):** Several source AC/DoD titles below use the original source
+> epic's "confirmation card" / "Recommendation Card" / "Role Confirmation Card" / "Output card" language
+> (`user-story-family-quick-pitch.html`, pre-dating this decomposition). Those titles are left verbatim
+> here for source traceability. Per the final PO decision, M-Smart is a Gen AI chatbot — every one of
+> these interactions is realized purely as a conversational chat message, never a UI card; see US-001
+> R.03/AC1/AC5 and US-002's Screen demo line for the actual realized behavior. This does **not** apply to
+> the "Per-Member Cards" section in §8 (MGAFS-2120-C / US-004), which is a section of the printed PDF
+> document, not a chat UI element.
+
 ## 0. Epic-Level Statement
 
 | Source | Description | Target Story | Covered By |
@@ -134,7 +143,7 @@ HTML; this is a gap in the source numbering, not an omission of this matrix.)*
 | OOS: Detailed premium calculation (belongs to 2120-B) | — | US-003 | Confirms capability boundary — realized entirely in US-003 |
 | OOS: PDF generation (belongs to 2120-C) | — | US-004 | Confirms capability boundary — realized entirely in US-004 |
 | OOS: Health-underwriting rejection handling | — | Out of epic scope | Not covered by any of the 4 stories — explicitly a different flow (Underwriting), consistent with source |
-| Dependency: Product eligibility matrix by age/gender/relationship | — | US-002 | Dependencies §6, Pre-Sprint Blocker #2 |
+| Dependency: Product/rider eligibility rules by age/gender/relationship | — | US-002 | Dependencies §6 — sourced from each product's existing ePOS validation rules, or the official product documentation (provision document / product spec), not a new matrix (Blocker #2 retired) |
 | Dependency: LLM multi-entity extraction prompt | — | US-001 | Technical Note §7 |
 | Dependency: Session state schema for multi-persona family object | — | US-001 | Technical Note §7, User Story Post-condition |
 | Dependency: Occupation class validation rules (1–4) | — | US-001 | R.01 Mandatory Info Matrix |
@@ -226,7 +235,7 @@ HTML; this is a gap in the source numbering, not an omission of this matrix.)*
 | External Dependency: Product Engine API — multi-insured payload | Hard blocker — confirm before dev starts | US-002, US-003 | Both stories' Impact and Risk §4, "Pre-Sprint Blocker #1" |
 | External Dependency: Illustration Engine — multi-insured PDF | Hard blocker — confirm single-call support or phased merge | US-004 | Impact and Risk §4 |
 | Blocker #1: Product Engine API contract | Biggest external risk to the sprint | US-002, US-003 | Impact and Risk §4 of both stories |
-| Blocker #2: Rider Eligibility Matrix | BA must document before dev starts | US-002 | Dependencies §6, Impact and Risk §4 |
+| Blocker #2: Rider Eligibility Matrix | **Retired** — per final PO decision, eligibility rules are sourced from each product's existing ePOS validation rules, or the official product documentation (provision document / product spec); no new matrix is authored by BA | US-002 | Dependencies §6, Impact and Risk §4 |
 | Blocker #3: MGAFS-1858 rider memory bug | Must be fixed as a prerequisite, not parallel | US-003 | Impact and Risk §4 |
 
 ---

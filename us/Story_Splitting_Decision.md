@@ -50,8 +50,10 @@ PDF delivery via email/Zalo; per-FA PDF template customization.
 **Assumptions**
 - The Product Engine API can be made to support (or be called sequentially for) a multi-insured payload —
   tracked as the #1 pre-sprint blocker.
-- The Rider Eligibility Matrix will be documented by the BA into the knowledge base before development
-  starts on the recommendation capability.
+- Product/rider eligibility rules are already defined per product in each product's existing ePOS
+  validation rules, or the official product documentation (provision document / product spec); the
+  recommendation capability (US-002) integrates with these existing sources rather than requiring a new
+  consolidated matrix to be authored.
 - Bug MGAFS-1858 (rider memory loss on re-calculation) is fixed as a prerequisite, not in parallel.
 - FA license validation (MIT, per MGAFS-1834 / MGAFS-2071) already exists and is reused unchanged, not
   rebuilt.
@@ -93,7 +95,7 @@ Traceability Matrix rather than silently invented.
 | Capability | Backend impact | API impact | DB impact | Integration impact | Existing module impact | Technical risk |
 |---|---|---|---|---|---|---|
 | C1 Intake & Role Resolution | New multi-entity extraction/NLP prompt; extended session-state schema for a multi-persona family object | New/extended LLM extraction call; no external product API calls | Session/conversation state only — no new persistent table (CRM save is explicitly out of scope) | FA license check (MGAFS-2071, in progress) reused as-is | Must not regress the existing single-persona parsing path | Pronoun/relationship-graph ambiguity ("em", "chồng con gái") and age-in-months/numeric-unit parsing ("200k/ngày") are LLM accuracy risks, not architecture risks |
-| C2 Recommendation | Eligibility/matching logic against the Rider Eligibility Matrix; per-member recommendation builder | Product catalog / eligibility lookups (existing) | Needs the Rider Eligibility Matrix authored into the knowledge base (Blocker #2) before dev starts | RUV14 Base Product Setup (MGAFS-2057, in progress) needed for full rider coverage | Single-persona recommendation path must keep working unchanged | Scope-leak risk: a per-person exclusion ("no ILP for the mother") must not be applied globally — must be enforced in code, not left to prompt discipline alone |
+| C2 Recommendation | Eligibility/matching logic against each product's existing ePOS validation rules, or the official product documentation (provision document / product spec); per-member recommendation builder | Product catalog / eligibility lookups (existing) | Recommendation engine must integrate with existing per-product ePOS validation rules / product documentation — no new matrix to author; SA to confirm the query/integration path before dev starts (Blocker #2 retired) | RUV14 Base Product Setup (MGAFS-2057, in progress) needed for full rider coverage | Single-persona recommendation path must keep working unchanged | Scope-leak risk: a per-person exclusion ("no ILP for the mother") must not be applied globally — must be enforced in code, not left to prompt discipline alone |
 | C3 Budget & Premium | Deterministic rule-based trimming engine (explicit priority order, not AI-guessed); premium aggregation across up to 4 insured | `calculatePremiums` must accept a multi-insured payload in one call, or the story must fall back to sequential calls + client-side aggregation (Blocker #1 — the single biggest external risk to the whole epic) | None | Depends on Product Engine API contract confirmation | Bug MGAFS-1858 (rider lost on re-calculation) must be fixed first — a 3-OI family will expose it 3× worse than single-persona | Response-time SLA (≤8s) with up to 4 parallel/sequential premium calls is a real perf risk if the API only supports single-insured calls |
 | C4 Illustration PDF | Multi-insured PDF layout engine (7 sections, 3 chart types, per-member accent colors); server-side SVG/Canvas rendering | Depends on the PDF generation engine (`gen-pdf-engine`) supporting a multi-insured template | None | Compliance sign-off on the new template — historically the longest lead-time item; should start **in parallel with C1/C2**, not wait for Sprint N+2 | Existing single-person PDF generation path must not regress | SLA ≤30s for 4 insured, ≥150 DPI, ≤5MB output; illustration table ordering bugs (MGAFS-1953/1855/1978) already exist in the single-person path and must not be reintroduced |
 
@@ -111,6 +113,11 @@ different cut purely to hit a target count.
 
 The team agreed to split by **business capability**, not by screen, matching the SA-reviewed module
 boundaries above:
+
+> Note on "confirmation card" below (MGAFS-2120 AC-01): this is the original source epic's title,
+> preserved for traceability. Per the final PO decision, M-Smart is a Gen AI chatbot — US-001 realizes
+> this as a conversational chat confirmation, not a UI card (see US-001 R.03/AC1/AC5). The C4 row's
+> "per-member cards" above (line 80) is unrelated — it refers to a section of the printed PDF document.
 
 | New Story | Capability | Absorbs source stories/AC groups | Story Points |
 |---|---|---|---|

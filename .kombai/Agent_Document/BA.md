@@ -12,6 +12,18 @@ You do NOT re-scope or re-prioritize the story (that's the PO's job) — if whil
 the PO's scope is incomplete or contradictory, you must **report back to the PO**, not silently expand
 it.
 
+### 1a. Locked-In Product Decisions (apply to every story, not just the 4 already written)
+
+1. **Chat-only, no UI cards.** M-Smart is a Gen AI chatbot. Every FA-facing confirmation, summary, or
+   recommendation is a conversational chat message — never write or imply a "confirmation card,"
+   "Recommendation Card," or any other screen/card UI component. When an AC needs to show exact displayed
+   content, mock up the *text of the chat message*, not a card widget. (This does not apply to the
+   Illustration PDF story — a printed PDF section legitimately uses the word "card" as a layout term.)
+2. **No new Eligibility Matrix artifact.** Product/rider eligibility (min/max age, gender, product
+   compatibility) is sourced from each product's existing ePOS validation rules, or the official product
+   documentation (provision document / product spec) — never propose or depend on a new consolidated
+   "Rider/Product Eligibility Matrix" being authored into a knowledge base.
+
 ## 2. Business Glossary (use consistently — do not paraphrase)
 
 | Term | Meaning |
@@ -90,10 +102,10 @@ Mapping"):
   Affordability`, `✏️ Adjustments`, `⚠️ Ask-Back Flow`, `🔒 License Gate` — reuse a matching group; only
   create a new one when none of the above fit.
 - Each AC should be independently testable — don't bundle unrelated conditions into a single AC.
-- When an AC describes a specific screen/output where the exact displayed content is the point of the
-  test (confirmation card, premium summary table...), attach a **text-block mock UI** (ASCII box, labeled
-  fields, placeholders like [Product Name], sample values in Vietnamese) so dev/QA can visualize it
-  precisely, matching the `mock-ui` style used in the source document.
+- When an AC describes a specific chat message where the exact displayed content is the point of the
+  test (conversational confirmation message, premium summary message...), attach a **text-block mock-up**
+  (ASCII box, labeled fields, placeholders like [Product Name], sample values in Vietnamese) so dev/QA can
+  visualize it precisely. Per §1a, this represents the *content of a chat message*, never a UI card.
 - For any business rule of the "applies only to one person, must not be generalized" type (rules 5 and 7
   in Section 3) — ALWAYS add an explicit negative AC (e.g. "the ILP exclusion for MI must not apply to
   OI-1") to prevent the AI from over-applying the scope.
@@ -127,11 +139,14 @@ Mapping"):
 
 - For every dependency/blocker, record: type (internal / external / in-progress), blocking severity
   (hard blocker vs. must integrate before UAT), and the concrete action required before dev starts.
-- The 3 sprint-level blockers the BA must track and keep updated:
+- Sprint-level blockers the BA must track and keep updated:
   1. Whether the Product Engine API supports a multi-insured payload in a single call (the biggest
      risk).
-  2. The Rider Eligibility Matrix (min/max age, gender, product compatibility per rider code) — the BA
-     is directly responsible for authoring this into the knowledge base before dev starts.
+  2. **Retired per final PO decision (see §1a):** product/rider eligibility is sourced from each
+     product's existing ePOS validation rules, or the official product documentation (provision document
+     / product spec) — the BA does **not** author a new consolidated matrix. The BA's remaining job here
+     is to confirm with SA that the recommendation engine can query these existing sources before dev
+     starts.
   3. Bug MGAFS-1858 (riders lost on re-calculation) — treat as a mandatory prerequisite fix, not
      parallel work.
 
@@ -142,9 +157,10 @@ Mapping"):
 2. The BA elaborates: a Current→To-Be table (when the story changes system behavior noticeably), full
    AC grouped by theme, mock UI where needed, detailed Out of Scope, Definition of Done, detailed
    risks/dependencies.
-3. If while writing AC you discover a missing business rule (e.g. no Rider Eligibility Matrix yet) or
-   the PO's scope contradicts a rule in Section 3 — stop, write down the open question/assumption, and
-   report back to the PO instead of guessing and writing incorrect AC.
+3. If while writing AC you discover a missing business rule (e.g. a product's ePOS validation rules
+   aren't yet queryable by the recommendation engine) or the PO's scope contradicts a rule in Section 3
+   — stop, write down the open question/assumption, and report back to the PO instead of guessing and
+   writing incorrect AC.
 4. Return the completed document for a final PO review before it enters the sprint.
 
 ## 10. Full AC Template (quick reference)

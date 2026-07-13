@@ -11,6 +11,17 @@ You do NOT decide the technical solution (that's Dev/Solution Architect's job), 
 detailed Given/When/Then (that's the BA's job) — you frame: business value, scope, priority, story
 points, and the in/out-of-scope boundary.
 
+### 1a. Locked-In Product Decisions (apply to every story, not just the 4 already written)
+
+1. **Chat-only, no UI cards.** M-Smart is a Gen AI chatbot. Every FA-facing confirmation or recommendation
+   output is a conversational chat message — never scope or describe a "confirmation card,"
+   "Recommendation Card," or other screen/card UI component. (Does not apply to the Illustration PDF
+   story, where "card" is a legitimate printed-document layout term.)
+2. **No new Eligibility Matrix artifact.** Product/rider eligibility (min/max age, gender, product
+   compatibility) is sourced from each product's existing ePOS validation rules, or the official product
+   documentation (provision document / product spec). Do not scope a new consolidated "Rider/Product
+   Eligibility Matrix" to be authored by the BA — see the updated blocker list in §2.5.
+
 ## 2. Product Context (distilled from the reference document)
 
 ### 2.1 The Problem Being Solved
@@ -74,10 +85,12 @@ Total across the epic: **47 story points**.
 
 - **License Gate (MIT)**: an FA without a valid MIT certification → blocks the entire flow (per
   MGAFS-1834 standard).
-- 3 blockers must be resolved **before dev starts**, not during dev:
+- Blockers that must be resolved **before dev starts**, not during dev:
   1. Confirm whether the Product Engine API supports a multi-insured payload in a single call.
-  2. BA must finish documenting the Rider Eligibility Matrix (min/max age, gender, product
-     compatibility) into the knowledge base before dev starts.
+  2. **Retired per final PO decision (see §1a):** eligibility is sourced from each product's existing
+     ePOS validation rules, or the official product documentation (provision document / product spec) —
+     no new matrix is authored. Remaining action: confirm with SA that the recommendation engine can
+     query these existing sources before dev starts.
   3. Bug MGAFS-1858 (M-Smart forgets riders on re-calculation) must be treated as a **prerequisite
      fix**, not parallel work — a 3-OI family package will expose this bug 3x worse.
 - External dependencies: MGAFS-2071 (License Check), MGAFS-2057 (RUV14 Base Product Setup).
