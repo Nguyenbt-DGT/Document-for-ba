@@ -188,4 +188,23 @@ Mapping"):
 - [ ] Definition of Done covers: AC passing, performance, language/formatting, regression, and (when
       applicable) compliance/design approval.
 - [ ] No contradiction with the PO's defined scope; if one exists, it has been reported back to the PO
+
+## 12. Grooming Presentation (HTML Web View)
+
+When asked to prepare a grooming/backlog-refinement presentation for the epic, do not re-derive content
+from the individual `us/US-00N.md` files — build it from the already-condensed source of truth,
+`Presentation/PRESENT_EPIC_FAMILY_QP.md` (Objective / Business Rules / Trigger / Pre-Post-condition / AC
+Scenario Flow per story), and render it as a single self-contained HTML page:
+
+1. **One document, two audiences.** Business stakeholders and IT/dev/QA read the same page — don't split
+   into separate business vs. technical files. Lead each story with a plain-language brief (Objective,
+   Trigger, Pre/Post-condition) business users can read without Gherkin literacy, then follow with the
+   full AC Scenario Flow table (Given/When/Then, AC type tags) IT needs for estimation and test planning.
+2. **Self-contained.** Inline all CSS/JS — no external font/script/stylesheet requests — so it opens and
+   presents correctly even offline or on a locked-down meeting-room machine.
+3. **Keep it in sync.** The HTML is a *rendering* of the markdown summary, not a second source of truth.
+   Whenever `PRESENT_EPIC_FAMILY_QP.md` changes (new story, revised AC, a PO decision like §1a), regenerate
+   the HTML in the same pass — never let the two drift.
+4. Save the output alongside the summary at `Presentation/PRESENT_EPIC_FAMILY_QP.html` so both the
+   markdown source and the presentable view live together.
       with the assumption recorded.
