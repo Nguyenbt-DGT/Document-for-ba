@@ -343,7 +343,7 @@
 | Member | Age/DOB | Gender | Relationship to PO | Occupation Class | Budget / Risk / Term (PO only) | Status |
 |---|---|---|---|---|---|---|
 | PO | 45t | Nam | — (is PO) | 1 (default) | 4tr/tháng / Thấp / 5 năm | Đủ |
-| MI | 68t | Nam | Cha | 1 (default) | — | Đủ — **68t gần vượt tuổi tối đa của sản phẩm tiết kiệm dài hạn (ILP) → loại các sản phẩm ILP, chỉ đề xuất sản phẩm sức khỏe/y tế phù hợp cho người lớn tuổi, và nêu rõ lý do loại trừ cho FA** |
+| MI | 68t | Nam | Cha | 1 (default) | — | Đủ — **68t gần vượt tuổi tối đa của sản phẩm tiết kiệm dài hạn (ILP) → loại các sản phẩm ILP, chỉ đề xuất sản phẩm sức khỏe/y tế phù hợp cho người lớn tuổi, và nêu rõ lý do loại trừ cho Agent** |
 
 ---
 
@@ -390,7 +390,7 @@
 
 | Member | Age/DOB | Gender | Relationship to PO | Occupation Class | Budget / Risk / Term (PO only) | Status |
 |---|---|---|---|---|---|---|
-| PO/MI | Sinh năm 1990 → **tuổi tự tính theo năm hiện tại**, không yêu cầu FA tự quy đổi | Nữ | — (is PO) | 1 (default) | 6tr/tháng / Cao / 15 năm | Đủ |
+| PO/MI | Sinh năm 1990 → **tuổi tự tính theo năm hiện tại**, không yêu cầu Agent tự quy đổi | Nữ | — (is PO) | 1 (default) | 6tr/tháng / Cao / 15 năm | Đủ |
 | OI-1 (Chồng) | Sinh ngày 12/5/1988 → **tuổi chính xác tính theo ngày/tháng/năm sinh đầy đủ** (ưu tiên hơn khi chỉ có năm sinh) | Nam | Chồng | 1 (default) | — | Đủ — độ chính xác cao hơn A-nhóm chỉ nêu "năm sinh" vì có đủ ngày/tháng/năm |
 
 ---
@@ -558,7 +558,7 @@
 
 ---
 
-### C7. FA Uses M-Smart's Own PO/MI/OI Jargon Directly
+### C7. Agent Uses M-Smart's Own PO/MI/OI Jargon Directly
 
 **💬 Agent Message**
 > PO là a, 39t nam. MI là vợ a, 36t nữ. OI1 là con trai 8t.
@@ -577,7 +577,7 @@
 | Member | Age/DOB | Gender | Relationship to PO | Occupation Class | Budget / Risk / Term (PO only) | Status |
 |---|---|---|---|---|---|---|
 | PO | 39t | Nam | — (is PO) | 1 (default) | 7tr/tháng / Cao / 12 năm | Đủ |
-| MI | 36t | Nữ | Vợ | 1 (default) | — | Đủ — **PO≠MI, vẫn cần xác nhận hội thoại trước khi tính phí dù FA đã tự gán nhãn PO/MI/OI rõ ràng — dùng đúng nhãn FA nêu, không suy diễn lại từ đầu, nhưng bước xác nhận không được bỏ qua** |
+| MI | 36t | Nữ | Vợ | 1 (default) | — | Đủ — **PO≠MI, vẫn cần xác nhận hội thoại trước khi tính phí dù Agent đã tự gán nhãn PO/MI/OI rõ ràng — dùng đúng nhãn Agent nêu, không suy diễn lại từ đầu, nhưng bước xác nhận không được bỏ qua** |
 | OI-1 (Con trai) | 8t | Nam | Con | 2 (default, <18) | — | Đủ |
 
 ---

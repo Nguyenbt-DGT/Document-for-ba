@@ -14,7 +14,7 @@ it.
 
 ### 1a. Locked-In Product Decisions (apply to every story, not just the 4 already written)
 
-1. **Chat-only, no UI cards.** M-Smart is a Gen AI chatbot. Every FA-facing confirmation, summary, or
+1. **Chat-only, no UI cards.** M-Smart is a Gen AI chatbot. Every Agent-facing confirmation, summary, or
    recommendation is a conversational chat message — never write or imply a "confirmation card,"
    "Recommendation Card," or any other screen/card UI component. When an AC needs to show exact displayed
    content, mock up the *text of the chat message*, not a card widget. (This does not apply to the
@@ -31,18 +31,18 @@ it.
 | PO | Policy Owner — the contract owner, the person paying the premium |
 | MI | Main Insured — the primary insured person, tied to the base product |
 | OI | Other Insured — spouse or child, covered via a rider |
-| FA | Financial Advisor / Manulife agent — the actor who uses M-Smart |
+| Agent | Manulife agent (any distribution channel, not limited to Financial Advisors) — the actor who uses M-Smart |
 | PWPO | Payor Waiver rider used when PO ≠ MI (e.g. husband pays, wife is the Main Insured...) |
 | ILP | Investment-Linked Product |
 | MIT | The certification required to advise on ILP products (License Gate, per MGAFS-1834 standard) |
 | Occupation class 1–4 | Occupation classification affecting premium/eligibility; defaults to 1 for adult PO/MI/OI, |
-|  | 2 for a child OI under 18; the system **never proactively asks** — it only processes class 4 when the FA volunteers it |
+|  | 2 for a child OI under 18; the system **never proactively asks** — it only processes class 4 when the Agent volunteers it |
 | Ask-Back Flow | The mechanism for asking back required missing information, max 2–3 fields per turn, never re-asking info already given |
 
 **Vietnamese-first role labeling:** when OI-1 refers to a spouse, always label it with the actual
 Vietnamese term — **Vợ** (wife) or **Chồng** (husband) — never the bare English word "Spouse" in any
 column header, legend, or scenario title. "Spouse" hides which parent/gender is meant, which is exactly
-the kind of ambiguity that must not leak into FA-facing or business-facing content. This is a labeling
+the kind of ambiguity that must not leak into Agent-facing or business-facing content. This is a labeling
 rule, not a ban on the English word appearing in ordinary descriptive prose (e.g. "select a rider per OI
 (spouse, each child)" in a requirement description is fine — it's a category name, not a role label).
 
@@ -51,7 +51,7 @@ rule, not a ban on the English word appearing in ordinary descriptive prose (e.g
 These are the domain "traps" already identified in this product — every new story with natural-language
 conversational input must have AC covering the applicable cases below:
 
-1. **Budget takes priority over Income**: if the FA provides both, use Budget as the basis for the
+1. **Budget takes priority over Income**: if the Agent provides both, use Budget as the basis for the
    recommendation.
 2. **PO = MI by default**: the LLM should only split PO ≠ MI when there is an explicit signal in the
    message (e.g. "husband pays the premium, wife is the Main Insured").
@@ -68,29 +68,34 @@ conversational input must have AC covering the applicable cases below:
    phrasing.
 8. **Age boundary cases**: when MI is near the maximum entry age, long-horizon products (ILP) must be
    filtered out and shorter-horizon/health-protection products suggested instead, with a transparent
-   notice to the FA.
+   notice to the Agent.
 9. **Budget overflow → rule-based trimming with a fixed priority order, always explained transparently**;
-   the FA can override the order. Do not let AI guess how to trim — the logic must be deterministic.
-10. **License Gate (MIT)**: an FA without a valid certification → blocks the entire flow before any
+   the Agent can override the order. Do not let AI guess how to trim — the logic must be deterministic.
+10. **License Gate (MIT)**: an Agent without a valid certification → blocks the entire flow before any
     calculation happens.
 11. **Minimal ask-back**: never re-ask for a field already provided, max 2–3 fields per turn, never
-    proactively ask about occupation unless the FA volunteers class 4.
+    proactively ask about occupation unless the Agent volunteers class 4.
 12. **Language**: all conversational output and documentation is in Vietnamese; use Vietnamese number
     formatting (thousands separator as a period).
+13. **M-Smart's self-address**: in every mocked-up chat message, M-Smart refers to itself as **"tôi"**
+    and addresses the Agent as **"anh/chị"** — never "em" for itself (that register implies M-Smart is
+    junior to the Agent) and never a different pronoun for the Agent. This applies only to M-Smart's own
+    lines; an Agent Message quote keeps whatever self-reference the Agent naturally used ("e", "a", "kh
+    của e"...) since that's real user input, not M-Smart's persona.
 
 ## 4. Input Scenario Collection & Classification Technique (Scenario Taxonomy)
 
-When a story needs to demonstrate correct handling of the FA's natural-language input, use the exact
+When a story needs to demonstrate correct handling of the Agent's natural-language input, use the exact
 method already established in the reference document (section "Realistic Agent Prompts & Role
 Mapping"):
 
 - Split scenarios into **Groups** by family-structure characteristics, not by arbitrary order:
   - **Group A** — PO = Main Insured (1–3 additional profiles) — happy path.
   - **Group B** — PO ≠ Main Insured (2–4 profiles) — role-related edge case.
-  - **Group C** — Agent-directed riders (FA explicitly specifies the product/rider instead of letting
+  - **Group C** — Agent-directed riders (Agent explicitly specifies the product/rider instead of letting
     the system recommend one).
 - Each scenario within a group has 3 mandatory parts:
-  1. **💬 Agent Message** — the raw, natural Vietnamese message, matching real FA phrasing (abbreviated,
+  1. **💬 Agent Message** — the raw, natural Vietnamese message, matching real Agent phrasing (abbreviated,
      no formal punctuation, colloquial self-references like "kh", "e"...). Keep these example messages
      in Vietnamese — they represent real user input, not documentation prose.
   2. **🗂 Parsed Role Mapping** — a table: Role | Profile | Age/Gender | Source in Message (quoting the
@@ -99,10 +104,10 @@ Mapping"):
      rules in Section 3).
 - Minimum scenario count: enough that every applicable business rule in Section 3 has at least one
   illustrating scenario. Beyond the core rules, keep extending coverage for realistic Vietnamese phrasing
-  variety the FA will actually type — e.g. income-vs-budget both stated in one message (Rule 1), an
+  variety the Agent will actually type — e.g. income-vs-budget both stated in one message (Rule 1), an
   elderly-MI age boundary case (Rule 8), a mentioned family member who is out of scope (extended family
   beyond spouse/children — e.g. "anh vợ", "ông bà"), date-of-birth or birth-year phrasing instead of an age
-  in years, less common relationship words (e.g. "con nuôi"/"con riêng"), and an FA who directly uses
+  in years, less common relationship words (e.g. "con nuôi"/"con riêng"), and an Agent who directly uses
   M-Smart's own jargon (PO/MI/OI) in their message instead of natural family words. Treat the taxonomy as
   open-ended — add a new scenario whenever a real agent phrasing pattern isn't yet represented.
 
@@ -112,11 +117,11 @@ A business stakeholder skimming the `## 2. Requirement` section of a US doc shou
 abstract rule to understand what it means in practice. So every Requirement (R.01, R.02...) must carry
 one short, concrete example immediately after its description, in this format:
 
-> 🧑‍💼 **Ví dụ thực tế:** "*<một câu tin nhắn tiếng Việt thật của FA>*" → <kết quả/hành vi bằng ngôn ngữ
+> 🧑‍💼 **Ví dụ thực tế:** "*<một câu tin nhắn tiếng Việt thật của Agent>*" → <kết quả/hành vi bằng ngôn ngữ
 > đơn giản, một dòng>.
 
 Rules for this example:
-- The quoted message must be realistic FA phrasing (colloquial, abbreviated) — reuse or lightly adapt one
+- The quoted message must be realistic Agent phrasing (colloquial, abbreviated) — reuse or lightly adapt one
   from `Scenario_Bank_Family_Intake.md` when one already illustrates the same rule, instead of inventing a
   new one that says the same thing differently.
 - The outcome line is plain language, not a Given/When/Then — it's for a reader who doesn't know Gherkin.
