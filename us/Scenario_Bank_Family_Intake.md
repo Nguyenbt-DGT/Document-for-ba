@@ -1,6 +1,6 @@
 # Scenario Bank — Family Intake & Role Resolution (US-001)
 
-> 15 realistic Vietnamese agent-input scenarios for AI dev/training. Each scenario has the raw agent
+> 22 realistic Vietnamese agent-input scenarios for AI dev/training. Each scenario has the raw agent
 > message, the parsed role mapping, and the detected required fields (per US-001 R.01 Mandatory
 > Information Matrix: Age/DOB, Gender, Occupation class, Relationship to PO, and for PO only —
 > Income/Budget, Risk appetite, Payment term).
@@ -118,7 +118,7 @@
 
 ---
 
-### A5. Spouse + 3 Children (4 OI) — Over-Limit, Prioritization Needed
+### A5. Wife + 3 Children (4 OI) — Over-Limit, Prioritization Needed
 
 **💬 Agent Message**
 > a có vợ 36t và 3 con: bé lớn 10t nam, bé giữa 7t nữ, bé út 3t nam
@@ -144,6 +144,52 @@
 | OI-2 (Con lớn) | 10t | Nam | Con | 2 (default, <18) | — | Đủ |
 | OI-3 (Con giữa) | 7t | Nữ | Con | 2 (default, <18) | — | Đủ |
 | OI-4 (Con út) | 3t | Nam | Con | 2 (default, <18) | — | **Vượt hạn mức 3 OI — cần hỏi anh/chị ưu tiên 3 trong 4 người** |
+
+---
+
+### A6. Income and Budget Both Stated — Budget Must Win
+
+**💬 Agent Message**
+> KH nam 37t, thu nhập 100tr/tháng nhưng chỉ dành 8tr/tháng cho bảo hiểm thôi
+> vợ 34t, đóng phí 12 năm, risk vừa
+> muốn gói tiết kiệm + bảo vệ cho cả 2 vợ chồng
+
+**🗂 Parsed Role Mapping**
+
+| Role | Profile | Age / Gender | Source in Message |
+|---|---|---|---|
+| PO = MI | Bản thân (Self) | Nam, 37t | "KH nam 37t" |
+| OI-1 | Vợ (Wife) | Nữ, 34t | "vợ 34t" |
+
+**📋 Detected Required Fields**
+
+| Member | Age/DOB | Gender | Relationship to PO | Occupation Class | Budget / Risk / Term (PO only) | Status |
+|---|---|---|---|---|---|---|
+| PO/MI | 37t | Nam | — (is PO) | 1 (default) | 8tr/tháng (ngân sách) / Vừa / 12 năm | Đủ — **thu nhập 100tr/tháng chỉ mang tính tham khảo, không dùng làm cơ sở đề xuất gói vì ngân sách đã được nêu rõ** |
+| OI-1 (Vợ) | 34t | Nữ | Vợ | 1 (default) | — | Đủ |
+
+---
+
+### A7. Budget Stated as a Range — Needs a Single Confirmed Value
+
+**💬 Agent Message**
+> kh nữ 30t, chồng 33t
+> ngân sách khoảng 5-7 triệu/tháng, đóng 10 năm, rủi ro thấp
+> muốn mua bảo hiểm bảo vệ cho cả nhà
+
+**🗂 Parsed Role Mapping**
+
+| Role | Profile | Age / Gender | Source in Message |
+|---|---|---|---|
+| PO = MI | Bản thân (Self) | Nữ, 30t | "kh nữ 30t" |
+| OI-1 | Chồng (Husband) | Nam, 33t | "chồng 33t" |
+
+**📋 Detected Required Fields**
+
+| Member | Age/DOB | Gender | Relationship to PO | Occupation Class | Budget / Risk / Term (PO only) | Status |
+|---|---|---|---|---|---|---|
+| PO/MI | 30t | Nữ | — (is PO) | 1 (default) | **5-7 triệu/tháng (khoảng, chưa xác định)** / Thấp / 10 năm | **Ngân sách là một khoảng — cần hỏi lại một con số cụ thể trước khi tính toán:** *"Anh/chị muốn dùng mức 5 triệu hay 7 triệu/tháng làm cơ sở đề xuất ạ?"* |
+| OI-1 (Chồng) | 33t | Nam | Chồng | 1 (default) | — | Đủ |
 
 ---
 
@@ -277,6 +323,78 @@
 
 ---
 
+### B6. Adult Son Pays, Elderly Father Near Max Age Boundary — ILP Filtered Out
+
+**💬 Agent Message**
+> con trai 45t mua bảo hiểm cho ba 68t
+> con là PO đóng phí, ba là NĐBH chính
+> chủ yếu muốn bảo vệ sức khỏe khi ba về già, không quan trọng tiết kiệm
+> ngân sách 4tr/tháng, đóng 5 năm, rủi ro thấp
+
+**🗂 Parsed Role Mapping**
+
+| Role | Profile | Age / Gender | Source in Message |
+|---|---|---|---|
+| PO | Con trai (Son) — **≠ MI** | Nam, 45t | "con là PO đóng phí" |
+| MI | Ba (Father) — **elder MI, near age boundary** | Nam, 68t | "ba là NĐBH chính" |
+
+**📋 Detected Required Fields**
+
+| Member | Age/DOB | Gender | Relationship to PO | Occupation Class | Budget / Risk / Term (PO only) | Status |
+|---|---|---|---|---|---|---|
+| PO | 45t | Nam | — (is PO) | 1 (default) | 4tr/tháng / Thấp / 5 năm | Đủ |
+| MI | 68t | Nam | Cha | 1 (default) | — | Đủ — **68t gần vượt tuổi tối đa của sản phẩm tiết kiệm dài hạn (ILP) → loại các sản phẩm ILP, chỉ đề xuất sản phẩm sức khỏe/y tế phù hợp cho người lớn tuổi, và nêu rõ lý do loại trừ cho FA** |
+
+---
+
+### B7. Extended Family Member Mentioned — Out of Scope, Must Be Flagged Not Silently Added
+
+**💬 Agent Message**
+> kh nam 40t, vợ 37t
+> có thêm anh vợ 45t cũng muốn tham gia cùng
+> ngân sách 10tr/tháng, đóng 15 năm, rủi ro vừa
+
+**🗂 Parsed Role Mapping**
+
+| Role | Profile | Age / Gender | Source in Message |
+|---|---|---|---|
+| PO = MI | Bản thân (Self) | Nam, 40t | "kh nam 40t" |
+| OI-1 | Vợ (Wife) | Nữ, 37t | "vợ 37t" |
+| Out of scope | Anh vợ (Wife's older brother) | Nam, 45t | "anh vợ 45t cũng muốn tham gia cùng" — **extended family, not spouse/child** |
+
+**📋 Detected Required Fields**
+
+| Member | Age/DOB | Gender | Relationship to PO | Occupation Class | Budget / Risk / Term (PO only) | Status |
+|---|---|---|---|---|---|---|
+| PO/MI | 40t | Nam | — (is PO) | 1 (default) | 10tr/tháng / Vừa / 15 năm | Đủ |
+| OI-1 (Vợ) | 37t | Nữ | Vợ | 1 (default) | — | Đủ |
+| Anh vợ (out of scope) | 45t | Nam | Anh vợ (brother-in-law) | — | — | **Ngoài phạm vi — M-Smart không tự thêm vào Family Profile; thông báo:** *"Hiện M-Smart chỉ hỗ trợ lập hồ sơ cho vợ/chồng và con trong cùng hợp đồng gia đình. Anh vợ sẽ cần một cuộc tư vấn riêng."* **— phần còn lại của gia đình (PO/MI + vợ) vẫn tiếp tục xử lý bình thường** |
+
+---
+
+### B8. Birth Year / Full Date of Birth Given Instead of Age
+
+**💬 Agent Message**
+> kh nữ sinh năm 1990, chồng sinh ngày 12/5/1988
+> muốn mua bảo hiểm tiết kiệm cho cả 2 vợ chồng
+> ngân sách 6tr/tháng, đóng 15 năm, rủi ro cao
+
+**🗂 Parsed Role Mapping**
+
+| Role | Profile | Age / Gender | Source in Message |
+|---|---|---|---|
+| PO = MI | Bản thân (Self) | Nữ, sinh năm 1990 | "kh nữ sinh năm 1990" |
+| OI-1 | Chồng (Husband) | Nam, sinh ngày 12/5/1988 | "chồng sinh ngày 12/5/1988" |
+
+**📋 Detected Required Fields**
+
+| Member | Age/DOB | Gender | Relationship to PO | Occupation Class | Budget / Risk / Term (PO only) | Status |
+|---|---|---|---|---|---|---|
+| PO/MI | Sinh năm 1990 → **tuổi tự tính theo năm hiện tại**, không yêu cầu FA tự quy đổi | Nữ | — (is PO) | 1 (default) | 6tr/tháng / Cao / 15 năm | Đủ |
+| OI-1 (Chồng) | Sinh ngày 12/5/1988 → **tuổi chính xác tính theo ngày/tháng/năm sinh đầy đủ** (ưu tiên hơn khi chỉ có năm sinh) | Nam | Chồng | 1 (default) | — | Đủ — độ chính xác cao hơn A-nhóm chỉ nêu "năm sinh" vì có đủ ngày/tháng/năm |
+
+---
+
 ## Group C — Agent-Directed Product / Rider Control
 
 ### C1. ILP Base + Per-Person Rider Matrix with Different Amounts
@@ -390,7 +508,7 @@
 
 ---
 
-### C5. Incomplete Message — Spouse and Child Mentioned Without Age/Gender
+### C5. Incomplete Message — Husband and Child Mentioned Without Age/Gender
 
 **💬 Agent Message**
 > kh nữ 35t, có chồng và 1 con nhỏ
@@ -415,4 +533,53 @@
 
 ---
 
-*15/15 scenarios (5 per group). Ready for review.*
+### C6. Step-Child ("Con Riêng") — Relationship Keyword Beyond the Basic Set
+
+**💬 Agent Message**
+> tạo giải pháp cho kh nam 42t, vợ 38t
+> có con riêng của vợ 12t nữ muốn thêm vào cùng hợp đồng
+> ngân sách 9tr/tháng, đóng 15 năm, rủi ro vừa
+
+**🗂 Parsed Role Mapping**
+
+| Role | Profile | Age / Gender | Source in Message |
+|---|---|---|---|
+| PO = MI | Bản thân (Self) | Nam, 42t | "kh nam 42t" |
+| OI-1 | Vợ (Wife) | Nữ, 38t | "vợ 38t" |
+| OI-2 | Con riêng của vợ (Step-daughter) | Nữ, 12t | "con riêng của vợ 12t nữ" — resolves to relationship **Con** (child), same mandatory fields as a biological child |
+
+**📋 Detected Required Fields**
+
+| Member | Age/DOB | Gender | Relationship to PO | Occupation Class | Budget / Risk / Term (PO only) | Status |
+|---|---|---|---|---|---|---|
+| PO/MI | 42t | Nam | — (is PO) | 1 (default) | 9tr/tháng / Vừa / 15 năm | Đủ |
+| OI-1 (Vợ) | 38t | Nữ | Vợ | 1 (default) | — | Đủ |
+| OI-2 (Con riêng của vợ) | 12t | Nữ | Con (con riêng — vẫn là Con đối với PO) | 2 (default, <18) | — | Đủ — **"con riêng" resolves the same as "con" for mandatory-field purposes; no extra ask-back needed** |
+
+---
+
+### C7. FA Uses M-Smart's Own PO/MI/OI Jargon Directly
+
+**💬 Agent Message**
+> PO là a, 39t nam. MI là vợ a, 36t nữ. OI1 là con trai 8t.
+> ngân sách 7tr/tháng, đóng 12 năm, rủi ro cao
+
+**🗂 Parsed Role Mapping**
+
+| Role | Profile | Age / Gender | Source in Message |
+|---|---|---|---|
+| PO | Bản thân (Self) — **≠ MI** | Nam, 39t | "PO là a, 39t nam" |
+| MI | Vợ (Wife) — **different from PO** | Nữ, 36t | "MI là vợ a, 36t nữ" |
+| OI-1 | Con trai (Son) | Nam, 8t | "OI1 là con trai 8t" |
+
+**📋 Detected Required Fields**
+
+| Member | Age/DOB | Gender | Relationship to PO | Occupation Class | Budget / Risk / Term (PO only) | Status |
+|---|---|---|---|---|---|---|
+| PO | 39t | Nam | — (is PO) | 1 (default) | 7tr/tháng / Cao / 12 năm | Đủ |
+| MI | 36t | Nữ | Vợ | 1 (default) | — | Đủ — **PO≠MI, vẫn cần xác nhận hội thoại trước khi tính phí dù FA đã tự gán nhãn PO/MI/OI rõ ràng — dùng đúng nhãn FA nêu, không suy diễn lại từ đầu, nhưng bước xác nhận không được bỏ qua** |
+| OI-1 (Con trai) | 8t | Nam | Con | 2 (default, <18) | — | Đủ |
+
+---
+
+*22/22 scenarios (7 in Group A, 8 in Group B, 7 in Group C). Ready for review.*

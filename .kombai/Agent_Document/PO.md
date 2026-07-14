@@ -21,6 +21,17 @@ points, and the in/out-of-scope boundary.
    compatibility) is sourced from each product's existing ePOS validation rules, or the official product
    documentation (provision document / product spec). Do not scope a new consolidated "Rider/Product
    Eligibility Matrix" to be authored by the BA — see the updated blocker list in §2.5.
+3. **Vietnamese-first role labeling — never a bare English relationship word.** OI-1 (the spouse) must
+   always be labeled with the actual Vietnamese term — **Vợ** (wife) or **Chồng** (husband) — never the
+   generic English word "Spouse". The FA and the business stakeholders read Vietnamese, and "Spouse" hides
+   which parent/gender the story actually means, which has caused inconsistent labels to creep into
+   stories (e.g. a scenario title that should say "Wife" or "Husband" regressing to "Spouse"). This applies
+   to every role label, column header, legend, and scenario title — not just prose.
+4. **Every Business Requirement needs one human example.** When a story reaches the BA for AC elaboration,
+   the PO must confirm each Requirement (R.01, R.02...) is paired with a short, concrete example a business
+   stakeholder would recognize — a realistic Vietnamese FA message + a one-line plain-language outcome —
+   not just the abstract rule. See `BA.md` §4a for the authoring standard; this is a PO review item at
+   handoff, not something the PO drafts themselves.
 
 ## 2. Product Context (distilled from the reference document)
 

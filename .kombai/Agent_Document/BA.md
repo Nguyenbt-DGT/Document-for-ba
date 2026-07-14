@@ -39,6 +39,13 @@ it.
 |  | 2 for a child OI under 18; the system **never proactively asks** — it only processes class 4 when the FA volunteers it |
 | Ask-Back Flow | The mechanism for asking back required missing information, max 2–3 fields per turn, never re-asking info already given |
 
+**Vietnamese-first role labeling:** when OI-1 refers to a spouse, always label it with the actual
+Vietnamese term — **Vợ** (wife) or **Chồng** (husband) — never the bare English word "Spouse" in any
+column header, legend, or scenario title. "Spouse" hides which parent/gender is meant, which is exactly
+the kind of ambiguity that must not leak into FA-facing or business-facing content. This is a labeling
+rule, not a ban on the English word appearing in ordinary descriptive prose (e.g. "select a rider per OI
+(spouse, each child)" in a requirement description is fine — it's a category name, not a role label).
+
 ## 3. Business Rules Checklist to Verify When Writing AC
 
 These are the domain "traps" already identified in this product — every new story with natural-language
@@ -91,7 +98,35 @@ Mapping"):
   3. **⚠️ Parsing Challenge** — call out the specific ambiguity/risk of mis-parsing (cross-reference the
      rules in Section 3).
 - Minimum scenario count: enough that every applicable business rule in Section 3 has at least one
-  illustrating scenario.
+  illustrating scenario. Beyond the core rules, keep extending coverage for realistic Vietnamese phrasing
+  variety the FA will actually type — e.g. income-vs-budget both stated in one message (Rule 1), an
+  elderly-MI age boundary case (Rule 8), a mentioned family member who is out of scope (extended family
+  beyond spouse/children — e.g. "anh vợ", "ông bà"), date-of-birth or birth-year phrasing instead of an age
+  in years, less common relationship words (e.g. "con nuôi"/"con riêng"), and an FA who directly uses
+  M-Smart's own jargon (PO/MI/OI) in their message instead of natural family words. Treat the taxonomy as
+  open-ended — add a new scenario whenever a real agent phrasing pattern isn't yet represented.
+
+## 4a. Human-Readable Example per Business Requirement
+
+A business stakeholder skimming the `## 2. Requirement` section of a US doc should not have to parse an
+abstract rule to understand what it means in practice. So every Requirement (R.01, R.02...) must carry
+one short, concrete example immediately after its description, in this format:
+
+> 🧑‍💼 **Ví dụ thực tế:** "*<một câu tin nhắn tiếng Việt thật của FA>*" → <kết quả/hành vi bằng ngôn ngữ
+> đơn giản, một dòng>.
+
+Rules for this example:
+- The quoted message must be realistic FA phrasing (colloquial, abbreviated) — reuse or lightly adapt one
+  from `Scenario_Bank_Family_Intake.md` when one already illustrates the same rule, instead of inventing a
+  new one that says the same thing differently.
+- The outcome line is plain language, not a Given/When/Then — it's for a reader who doesn't know Gherkin.
+- One example per Requirement is enough; if a Requirement bundles multiple sub-cases (e.g. US-001 R.06's
+  three role-combination cases), one example per sub-case is acceptable but not required — use judgment
+  on whether one example is illustrative enough.
+- This is in addition to, not a replacement for, the full Given/When/Then AC in Section 8 — the AC is
+  still the testable spec; this is the plain-language on-ramp to it.
+- Do not confuse this with the BR table's "Example Scenario" column (Section 3) — that column is a
+  one-line trace per Business Rule; this is a slightly fuller example anchored to the Requirement text.
 
 ## 5. Acceptance Criteria Writing Standard
 
@@ -181,6 +216,9 @@ Mapping"):
 
 ## 11. Checklist Before Considering an AC Set Complete
 
+- [ ] Every Requirement (R.01, R.02...) has a paired human/business example per §4a — not just Given/When/Then.
+- [ ] No role label uses a bare English relationship word (e.g. "Spouse") where the Vietnamese term
+      (Vợ/Chồng) applies — see the Business Glossary note in §2.
 - [ ] Every AC group has a badge + correct numbering range.
 - [ ] Every applicable business rule from Section 3 has a corresponding AC or edge case.
 - [ ] Explicit negative AC exists for every "narrow scope, do not generalize" rule.
