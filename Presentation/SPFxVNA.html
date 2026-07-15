@@ -1,0 +1,1046 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vietnam Airlines x ShopeeFood — Travel Journey Service Blueprint</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body, #root { height: 100%; }
+    body { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; background: #FAFAFA; color: #111827; }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #F1F5F9; }
+    ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0);    }
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+    const { useState, useEffect, useRef, useCallback } = React;
+
+    /* ─── helpers ─────────────────────────────────────────── */
+    function rgb(hex) {
+      const r = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+      return r ? `${parseInt(r[1],16)},${parseInt(r[2],16)},${parseInt(r[3],16)}` : "0,0,0";
+    }
+
+    /* ─── brand palette (visible on white) ───────────────── */
+    const C = {
+      customer: "#4F46E5",  // indigo
+      vna:      "#D97706",  // amber
+      api:      "#0891B2",  // cyan-700
+      sfbe:     "#EA580C",  // orange-600
+      sfapp:    "#EE4D2D",  // shopee red
+    };
+    const CELL_W = 268, LABEL_W = 192;
+
+    /* ─── Phone shell (unchanged internal colour palette) ── */
+    function Phone({ dark, children }) {
+      dark = dark || false;
+      return (
+        <div style={{ width:110, height:212, borderRadius:14, border:`2px solid ${dark?"#263A60":"#E5E7EB"}`, background:dark?"#0D1830":"#FFFFFF", overflow:"hidden", boxShadow:"0 8px 28px rgba(0,0,0,0.55)", flexShrink:0, display:"flex", flexDirection:"column" }}>
+          <div style={{ height:17, background:dark?"#1A2E50":"#F8FAFC", flexShrink:0, display:"flex", alignItems:"center", justifyContent:"space-between", padding:"0 7px" }}>
+            <span style={{ fontSize:5.5, color:dark?"rgba(255,255,255,0.45)":"#9CA3AF" }}>10:58</span>
+            <span style={{ fontSize:5.5, color:dark?"rgba(255,255,255,0.45)":"#9CA3AF" }}>5G ▮▮▮</span>
+          </div>
+          <div style={{ flex:1, overflow:"hidden" }}>{children}</div>
+        </div>
+      );
+    }
+
+    /* ─── Phone screens (internal colours unchanged) ──────── */
+    function VNASearchScreen() {
+      return (
+        <Phone dark={true}>
+          <div style={{ background:"#0D1830", height:"100%", display:"flex", flexDirection:"column" }}>
+            <div style={{ padding:"4px 7px", borderBottom:"1px solid rgba(255,255,255,0.05)", textAlign:"center" }}>
+              <span style={{ fontSize:6, color:"#94A3B8" }}>Tim kiem chuyen bay</span>
+            </div>
+            <div style={{ margin:5, background:"#132040", borderRadius:7, padding:6, flex:1 }}>
+              <div style={{ marginBottom:5 }}>
+                <div style={{ fontSize:5, color:"#64748B", marginBottom:1 }}>DIEM DI</div>
+                <div style={{ fontSize:15, fontWeight:800, color:"#F8FAFC", lineHeight:1 }}>SGN</div>
+                <div style={{ fontSize:5, color:"#64748B" }}>TP Ho Chi Minh</div>
+              </div>
+              <div style={{ textAlign:"center", padding:"2px 0", color:"#FBBF24", fontSize:10 }}>&#8645;</div>
+              <div style={{ marginBottom:5 }}>
+                <div style={{ fontSize:5, color:"#64748B", marginBottom:1 }}>DIEM DEN</div>
+                <div style={{ fontSize:15, fontWeight:800, color:"#F8FAFC", lineHeight:1 }}>DAD</div>
+                <div style={{ fontSize:5, color:"#64748B" }}>Da Nang, VN</div>
+              </div>
+              <div style={{ background:"#1E3A5F", borderRadius:5, padding:5, display:"flex", justifyContent:"space-between", marginBottom:5 }}>
+                <div><div style={{ fontSize:4.5, color:"#64748B" }}>NGAY DI</div><div style={{ fontSize:8, fontWeight:700, color:"#FFF" }}>20 Thg07</div></div>
+                <div style={{ textAlign:"right" }}><div style={{ fontSize:4.5, color:"#64748B" }}>NGAY VE</div><div style={{ fontSize:8, fontWeight:700, color:"#FFF" }}>24 Thg07</div></div>
+              </div>
+              <div style={{ background:"#FBBF24", borderRadius:5, padding:"5px 0", textAlign:"center" }}>
+                <span style={{ fontSize:6, fontWeight:700, color:"#000" }}>Tim kiem chuyen bay</span>
+              </div>
+            </div>
+          </div>
+        </Phone>
+      );
+    }
+
+    function VNAConfirmScreen() {
+      return (
+        <Phone dark={true}>
+          <div style={{ background:"#0D1830", height:"100%", display:"flex", flexDirection:"column" }}>
+            <div style={{ background:"#132040", padding:"4px 7px", display:"flex", alignItems:"center", gap:4 }}>
+              <span style={{ fontSize:8 }}>&#127800;</span>
+              <span style={{ fontSize:6, color:"#FBBF24", fontWeight:700 }}>Vietnam Airlines</span>
+            </div>
+            <div style={{ background:"#0F4020", padding:"3px 7px", display:"flex", alignItems:"center", gap:3 }}>
+              <span style={{ fontSize:8, color:"#22C55E" }}>&#10003;</span>
+              <span style={{ fontSize:6.5, fontWeight:600, color:"#FFF" }}>Booking Confirmed</span>
+            </div>
+            <div style={{ background:"#132040", margin:"5px 5px 3px", borderRadius:7, padding:6 }}>
+              <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:4 }}>
+                <div style={{ textAlign:"center" }}>
+                  <div style={{ fontSize:13, fontWeight:800, color:"#F8FAFC", lineHeight:1 }}>SGN</div>
+                  <div style={{ fontSize:4.5, color:"#64748B" }}>Ho Chi Minh</div>
+                </div>
+                <div style={{ flex:1, textAlign:"center", fontSize:9, color:"#FBBF24" }}>&#9992; &#8212;</div>
+                <div style={{ textAlign:"center" }}>
+                  <div style={{ fontSize:13, fontWeight:800, color:"#F8FAFC", lineHeight:1 }}>DAD</div>
+                  <div style={{ fontSize:4.5, color:"#64748B" }}>Da Nang</div>
+                </div>
+              </div>
+              <div style={{ borderTop:"1px solid rgba(255,255,255,0.06)", paddingTop:4 }}>
+                <div style={{ fontSize:5, color:"#94A3B8" }}>Date: <span style={{ color:"#FBBF24" }}>20 Jul 2026</span></div>
+                <div style={{ fontSize:5, color:"#94A3B8" }}>VN-216 · Economy · 1 Passenger</div>
+              </div>
+            </div>
+            <div style={{ margin:"0 5px", background:"rgba(251,191,36,0.12)", borderRadius:5, padding:"4px 6px", textAlign:"center", border:"1px solid rgba(251,191,36,0.25)" }}>
+              <div style={{ fontSize:4.5, color:"#94A3B8" }}>BOOKING CODE</div>
+              <div style={{ fontSize:12, fontWeight:800, color:"#FBBF24", letterSpacing:2 }}>VNAHK9F2</div>
+            </div>
+            <div style={{ margin:"4px 5px 4px", background:"rgba(251,191,36,0.08)", borderRadius:4, padding:"3px 5px", display:"flex", alignItems:"center", gap:3 }}>
+              <span style={{ fontSize:7 }}>&#127800;</span>
+              <span style={{ fontSize:4.5, color:"#FBBF24" }}>1,250 LotusSmile miles earned</span>
+            </div>
+          </div>
+        </Phone>
+      );
+    }
+
+    function ShopeeEmailScreen() {
+      return (
+        <Phone>
+          <div style={{ height:"100%", background:"#F9FAFB", display:"flex", flexDirection:"column" }}>
+            <div style={{ background:"#EE4D2D", padding:"4px 6px", flexShrink:0 }}>
+              <div style={{ fontSize:5, color:"rgba(255,255,255,0.75)" }}>From: ShopeeFood</div>
+              <div style={{ fontSize:7, fontWeight:700, color:"#FFF" }}>&#127881; Welcome to Da Nang!</div>
+            </div>
+            <div style={{ padding:"5px", flex:1 }}>
+              <div style={{ fontSize:5.5, color:"#374151", marginBottom:5, lineHeight:1.5 }}>Hi Nguyen Van A! Your trip starts soon. Here is your exclusive food guide for Da Nang.</div>
+              {[{d:"50%",name:"Mi Quang Ba Mua",t:"Local Specialty"},{d:"40K",name:"Bun Cha Ca Ngoc",t:"Vietnamese"}].map((v,i)=>(
+                <div key={i} style={{ background:"#FFF", borderRadius:5, padding:"4px 5px", marginBottom:4, border:"1px solid #E5E7EB", display:"flex", gap:5 }}>
+                  <div style={{ width:22, height:22, borderRadius:4, background:"#EE4D2D", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                    <span style={{ fontSize:7, color:"#FFF", fontWeight:700 }}>-{v.d}</span>
+                  </div>
+                  <div>
+                    <div style={{ fontSize:6, fontWeight:600, color:"#111827" }}>{v.name}</div>
+                    <div style={{ fontSize:4.5, color:"#9CA3AF" }}>{v.t}</div>
+                  </div>
+                </div>
+              ))}
+              <div style={{ background:"#EE4D2D", borderRadius:5, padding:"4px 0", textAlign:"center" }}>
+                <span style={{ fontSize:5.5, fontWeight:700, color:"#FFF" }}>View All Recommendations &#8594;</span>
+              </div>
+            </div>
+          </div>
+        </Phone>
+      );
+    }
+
+    function PushNotifScreen() {
+      return (
+        <Phone>
+          <div style={{ background:"#EAECF2", height:"100%", display:"flex", flexDirection:"column", padding:5, gap:4 }}>
+            <div style={{ fontSize:5.5, color:"#9CA3AF", textAlign:"center", marginBottom:2 }}>&#8212; Notification Center &#8212;</div>
+            <div style={{ background:"rgba(255,255,255,0.94)", borderRadius:9, padding:6, boxShadow:"0 2px 10px rgba(0,0,0,0.1)" }}>
+              <div style={{ display:"flex", alignItems:"center", gap:4, marginBottom:3 }}>
+                <div style={{ width:16, height:16, borderRadius:4, background:"#EE4D2D", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                  <span style={{ fontSize:7 }}>&#127836;</span>
+                </div>
+                <div style={{ display:"flex", justifyContent:"space-between", flex:1 }}>
+                  <span style={{ fontSize:6, fontWeight:700, color:"#111827" }}>ShopeeFood</span>
+                  <span style={{ fontSize:4.5, color:"#9CA3AF" }}>now</span>
+                </div>
+              </div>
+              <div style={{ fontSize:7, fontWeight:700, color:"#111827", marginBottom:2 }}>Welcome to Da Nang! &#127881;</div>
+              <div style={{ fontSize:5.5, color:"#374151", lineHeight:1.4 }}>Explore local specialties with exclusive offers &#8212; save up to 50,000d today!</div>
+            </div>
+            <div style={{ background:"rgba(255,255,255,0.75)", borderRadius:9, padding:5, boxShadow:"0 1px 5px rgba(0,0,0,0.07)" }}>
+              <div style={{ display:"flex", alignItems:"center", gap:3 }}>
+                <div style={{ width:13, height:13, borderRadius:3, background:"#1B3A6B", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                  <span style={{ fontSize:6, color:"#FFF" }}>&#9992;</span>
+                </div>
+                <div>
+                  <div style={{ fontSize:5.5, fontWeight:600, color:"#111827" }}>Vietnam Airlines</div>
+                  <div style={{ fontSize:4.5, color:"#6B7280" }}>VN-216 landed safely in Da Nang &#10003;</div>
+                </div>
+              </div>
+            </div>
+            <div style={{ marginTop:"auto", textAlign:"center" }}>
+              <div style={{ width:28, height:2, background:"#CBD5E1", borderRadius:1, margin:"0 auto 2px" }} />
+              <div style={{ fontSize:4.5, color:"#9CA3AF" }}>Swipe to dismiss</div>
+            </div>
+          </div>
+        </Phone>
+      );
+    }
+
+    function ShopeeHomeScreen() {
+      return (
+        <Phone>
+          <div style={{ height:"100%", background:"#FFF", display:"flex", flexDirection:"column" }}>
+            <div style={{ background:"#EE4D2D", padding:"4px 6px", flexShrink:0 }}>
+              <div style={{ fontSize:4.5, color:"rgba(255,255,255,0.75)" }}>Giao den</div>
+              <div style={{ display:"flex", alignItems:"center", gap:2 }}>
+                <span style={{ fontSize:7 }}>&#128205;</span>
+                <span style={{ fontSize:5.5, fontWeight:700, color:"#FFF" }}>Trung tam Da Nang</span>
+              </div>
+            </div>
+            <div style={{ background:"linear-gradient(135deg,#FF6B35,#C0392B)", margin:"4px 4px 3px", borderRadius:6, padding:"5px 7px" }}>
+              <div style={{ fontSize:4.5, color:"rgba(255,255,255,0.85)" }}>&#9992; TRAVEL EXCLUSIVE</div>
+              <div style={{ fontSize:7, fontWeight:800, color:"#FFF", lineHeight:1.2 }}>Da Nang Food Guide</div>
+              <div style={{ background:"rgba(255,255,255,0.2)", display:"inline-block", borderRadius:3, padding:"1px 4px", marginTop:2 }}>
+                <span style={{ fontSize:4.5, color:"#FFF", fontWeight:700 }}>SAVE UP TO 50K</span>
+              </div>
+            </div>
+            <div style={{ padding:"0 4px", flex:1 }}>
+              {[{name:"Mi Quang Ba Mua",disc:"-50%",col:"#FF8C42",rating:"4.8"},{name:"Bun Cha Ca Ngoc",disc:"-40K",col:"#E67E22",rating:"4.6"},{name:"Cao Lau Pho Hoi",disc:"-35K",col:"#D35400",rating:"4.7"}].map((r,i)=>(
+                <div key={i} style={{ display:"flex", gap:4, marginBottom:3, padding:"3px", background:"#F9FAFB", borderRadius:5, border:"1px solid #F3F4F6" }}>
+                  <div style={{ width:26, height:26, borderRadius:4, background:r.col, flexShrink:0, display:"flex", alignItems:"center", justifyContent:"center" }}>
+                    <span style={{ fontSize:9 }}>&#127836;</span>
+                  </div>
+                  <div style={{ flex:1, minWidth:0 }}>
+                    <div style={{ fontSize:5.5, fontWeight:600, color:"#111827", whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis" }}>{r.name}</div>
+                    <div style={{ display:"flex", gap:3 }}>
+                      <span style={{ fontSize:5, color:"#F59E0B" }}>&#11088;{r.rating}</span>
+                      <span style={{ fontSize:5, color:"#EE4D2D", fontWeight:600 }}>{r.disc}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div style={{ background:"#FFF", borderTop:"1px solid #F3F4F6", padding:"3px 0", display:"flex", justifyContent:"space-around", flexShrink:0 }}>
+              {["Home","Orders","Likes","Notif"].map((t,i)=>(
+                <div key={i} style={{ textAlign:"center" }}>
+                  <div style={{ fontSize:5, color:i===0?"#EE4D2D":"#9CA3AF" }}>{t}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </Phone>
+      );
+    }
+
+    function VoucherWalletScreen() {
+      return (
+        <Phone>
+          <div style={{ height:"100%", background:"#FFF", display:"flex", flexDirection:"column" }}>
+            <div style={{ background:"#EE4D2D", padding:"5px 6px", flexShrink:0 }}>
+              <div style={{ fontSize:7, fontWeight:700, color:"#FFF" }}>My Vouchers</div>
+              <div style={{ fontSize:4.5, color:"rgba(255,255,255,0.8)" }}>&#9992; Vietnam Airlines Travel Pack</div>
+            </div>
+            <div style={{ padding:"5px", flex:1 }}>
+              <div style={{ fontSize:5.5, color:"#6B7280", marginBottom:5 }}>3 Active · Expires 24 Jul</div>
+              {[{v:"50,000d",min:"Min. 100K order",c:"#EE4D2D"},{v:"35,000d",min:"Min. 70K order",c:"#F97316"},{v:"20,000d",min:"No minimum",c:"#FBBF24"}].map((vc,i)=>(
+                <div key={i} style={{ display:"flex", marginBottom:4, borderRadius:5, overflow:"hidden", border:"1px solid #E5E7EB" }}>
+                  <div style={{ width:26, background:vc.c, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                    <span style={{ fontSize:4.5, color:"#FFF", fontWeight:700, writingMode:"vertical-rl", transform:"rotate(180deg)" }}>SAVE</span>
+                  </div>
+                  <div style={{ padding:"4px 5px", flex:1 }}>
+                    <div style={{ fontSize:8, fontWeight:700, color:vc.c }}>Save {vc.v}</div>
+                    <div style={{ fontSize:4.5, color:"#94A3B8" }}>{vc.min}</div>
+                  </div>
+                  <div style={{ padding:"0 5px", display:"flex", alignItems:"center" }}>
+                    <div style={{ width:13, height:13, borderRadius:"50%", background:vc.c, display:"flex", alignItems:"center", justifyContent:"center" }}>
+                      <span style={{ fontSize:8, color:"#FFF" }}>&#8250;</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </Phone>
+      );
+    }
+
+    function RestaurantDetailScreen() {
+      return (
+        <Phone>
+          <div style={{ height:"100%", background:"#FFF", display:"flex", flexDirection:"column" }}>
+            <div style={{ height:48, background:"linear-gradient(135deg,#FF8C42,#C0392B)", flexShrink:0, display:"flex", alignItems:"flex-end", padding:"0 5px 4px" }}>
+              <div>
+                <div style={{ fontSize:7, fontWeight:800, color:"#FFF" }}>Mi Quang Ba Mua</div>
+                <div style={{ display:"flex", gap:5 }}>
+                  <span style={{ fontSize:5, color:"rgba(255,255,255,0.9)" }}>&#11088; 4.8 · 2.1K</span>
+                  <span style={{ fontSize:5, color:"rgba(255,255,255,0.8)" }}>&#128205; 0.3 km</span>
+                </div>
+              </div>
+            </div>
+            <div style={{ background:"#FFF3EC", borderBottom:"1px dashed #EE4D2D", padding:"3px 5px", display:"flex", justifyContent:"space-between", alignItems:"center", flexShrink:0 }}>
+              <div>
+                <div style={{ fontSize:5, color:"#EE4D2D", fontWeight:700 }}>&#127903; VOUCHER APPLIED</div>
+                <div style={{ fontSize:4.5, color:"#9CA3AF" }}>Save 50,000d on this order</div>
+              </div>
+              <span style={{ fontSize:8, color:"#22C55E" }}>&#10003;</span>
+            </div>
+            <div style={{ padding:"4px 5px", flex:1 }}>
+              <div style={{ fontSize:5.5, fontWeight:600, color:"#374151", marginBottom:4 }}>Menu Highlights</div>
+              {[{n:"Mi Quang Special",p:"55.000d",s:"27.500d"},{n:"Cao Lau Dac Biet",p:"65.000d",s:"32.500d"}].map((item,i)=>(
+                <div key={i} style={{ display:"flex", gap:4, marginBottom:4 }}>
+                  <div style={{ width:22, height:22, borderRadius:3, background:`hsl(${20+i*20},75%,58%)`, flexShrink:0 }} />
+                  <div style={{ flex:1 }}>
+                    <div style={{ fontSize:5.5, fontWeight:600, color:"#111827" }}>{item.n}</div>
+                    <div style={{ display:"flex", gap:3 }}>
+                      <span style={{ fontSize:5.5, color:"#EE4D2D", fontWeight:600 }}>{item.s}</span>
+                      <span style={{ fontSize:5, color:"#9CA3AF", textDecoration:"line-through" }}>{item.p}</span>
+                    </div>
+                  </div>
+                  <div style={{ width:16, height:16, borderRadius:"50%", background:"#EE4D2D", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0, alignSelf:"center" }}>
+                    <span style={{ fontSize:11, color:"#FFF", fontWeight:700, lineHeight:1 }}>+</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div style={{ padding:"0 5px 5px", flexShrink:0 }}>
+              <div style={{ background:"#EE4D2D", borderRadius:6, padding:"5px 0", textAlign:"center" }}>
+                <span style={{ fontSize:5.5, fontWeight:700, color:"#FFF" }}>Order Now · Save 50K &#127881;</span>
+              </div>
+            </div>
+          </div>
+        </Phone>
+      );
+    }
+
+    /* ─── BpCard — white, expand/collapse, hover lift ─────── */
+    function BpCard({ color, title, tag, subtitle, items, children }) {
+      const [expanded, setExpanded] = useState(true);
+      const [hovered, setHovered] = useState(false);
+      const r = rgb(color);
+      return (
+        <div
+          onMouseEnter={() => setHovered(true)}
+          onMouseLeave={() => setHovered(false)}
+          style={{
+            background: "#FFFFFF",
+            border: "1px solid #E5E7EB",
+            borderLeft: `3px solid ${color}`,
+            borderRadius: 8,
+            padding: "9px 10px 9px 11px",
+            marginBottom: 6,
+            boxShadow: hovered ? "0 6px 20px rgba(0,0,0,0.10)" : "0 1px 3px rgba(0,0,0,0.07)",
+            transform: hovered ? "translateY(-2px)" : "translateY(0)",
+            transition: "box-shadow 0.2s, transform 0.2s",
+            animation: "fadeInUp 0.28s ease",
+          }}
+        >
+          {/* header row: tag + title + toggle */}
+          <div style={{ display:"flex", alignItems:"flex-start", justifyContent:"space-between", gap:6 }}>
+            <div style={{ flex:1 }}>
+              {tag && (
+                <div style={{ display:"inline-block", background:`rgba(${r},0.08)`, border:`1px solid rgba(${r},0.2)`, borderRadius:3, padding:"1.5px 6px", marginBottom:4 }}>
+                  <span style={{ fontSize:7.5, color, fontWeight:700, letterSpacing:0.5 }}>{tag}</span>
+                </div>
+              )}
+              <div style={{ fontSize:10.5, fontWeight:700, color:"#111827", marginBottom:(subtitle||items)&&expanded?4:0, lineHeight:1.3 }}>{title}</div>
+            </div>
+            <button
+              onClick={() => setExpanded(e => !e)}
+              style={{
+                width:18, height:18, borderRadius:4, border:`1px solid rgba(${r},0.25)`,
+                background:`rgba(${r},0.07)`, cursor:"pointer", display:"flex", alignItems:"center",
+                justifyContent:"center", flexShrink:0, color, fontSize:14, fontWeight:700,
+                lineHeight:1, padding:0, marginTop:1,
+              }}
+              title={expanded ? "Collapse" : "Expand"}
+            >{expanded ? "−" : "+"}</button>
+          </div>
+          {expanded && subtitle && <div style={{ fontSize:8.5, color:"#6B7280", marginBottom:5, lineHeight:1.5, fontStyle:"italic" }}>{subtitle}</div>}
+          {expanded && items && items.map((item,i)=>(
+            <div key={i} style={{ display:"flex", alignItems:"flex-start", gap:5, marginBottom:3 }}>
+              <div style={{ width:4, height:4, borderRadius:"50%", background:color, flexShrink:0, marginTop:5 }} />
+              <span style={{ fontSize:8.5, color:"#6B7280", lineHeight:1.45 }}>{item}</span>
+            </div>
+          ))}
+          {expanded && children}
+        </div>
+      );
+    }
+
+    /* ─── Diamond decision node ───────────────────────────── */
+    function Diamond({ label, color }) {
+      const r = rgb(color);
+      return (
+        <div style={{ display:"flex", flexDirection:"column", alignItems:"center", margin:"8px 0 4px" }}>
+          <div style={{ width:56, height:28, background:`rgba(${r},0.07)`, border:`2px solid ${color}`, transform:"rotate(45deg) scaleX(1.6)", borderRadius:3, marginBottom:-12, flexShrink:0 }} />
+          <div style={{ background:`rgba(${r},0.07)`, border:`1px solid rgba(${r},0.22)`, borderRadius:4, padding:"3px 9px", position:"relative", zIndex:1 }}>
+            <span style={{ fontSize:8.5, color, fontWeight:600 }}>{label}</span>
+          </div>
+          <div style={{ display:"flex", gap:22, marginTop:6 }}>
+            <div style={{ textAlign:"center" }}><div style={{ fontSize:8, color:"#16A34A", fontWeight:700 }}>&#10003; YES</div><div style={{ fontSize:7, color:"#6B7280" }}>&#8594; Rec. Engine</div></div>
+            <div style={{ textAlign:"center" }}><div style={{ fontSize:8, color:"#DC2626", fontWeight:700 }}>&#10007; NO</div><div style={{ fontSize:7, color:"#6B7280" }}>&#8594; End Flow</div></div>
+          </div>
+        </div>
+      );
+    }
+
+    /* ─── ApiFlow — light-theme code block ───────────────── */
+    function ApiFlow({ fields }) {
+      return (
+        <div style={{ background:"#F8FAFC", border:"1px solid rgba(8,145,178,0.2)", borderRadius:6, padding:8, marginTop:4 }}>
+          <div style={{ display:"flex", alignItems:"center", gap:5, marginBottom:6 }}>
+            <div style={{ width:6, height:6, borderRadius:"50%", background:"#16A34A", boxShadow:"0 0 5px rgba(22,163,74,0.4)" }} />
+            <span style={{ fontSize:7.5, color:"#0891B2", fontFamily:"'JetBrains Mono', monospace" }}>POST /api/v1/travel-data</span>
+          </div>
+          {fields.map((f,i)=>(
+            <div key={i} style={{ display:"flex", gap:6, marginBottom:2 }}>
+              <span style={{ fontSize:7.5, color:"#6B7280", fontFamily:"'JetBrains Mono', monospace", minWidth:84 }}>{f.k}:</span>
+              <span style={{ fontSize:7.5, color:"#0F766E", fontFamily:"'JetBrains Mono', monospace" }}>{f.v}</span>
+            </div>
+          ))}
+          <div style={{ display:"flex", gap:5, marginTop:6 }}>
+            {[{l:"200 OK",s:"Response"},{l:"TLS 1.3",s:"Encrypted"},{l:"<120ms",s:"Latency"}].map((b,i)=>(
+              <div key={i} style={{ flex:1, background:"rgba(8,145,178,0.05)", border:"1px solid rgba(8,145,178,0.15)", borderRadius:4, padding:"3px 4px", textAlign:"center" }}>
+                <div style={{ fontSize:7.5, color:"#0891B2", fontWeight:600 }}>{b.l}</div>
+                <div style={{ fontSize:6, color:"#9CA3AF" }}>{b.s}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    /* ─── Flow stepper ────────────────────────────────────── */
+    function Flow({ steps, color }) {
+      const r = rgb(color);
+      return (
+        <div style={{ display:"flex", flexDirection:"column" }}>
+          {steps.map((s,i)=>(
+            <div key={i} style={{ display:"flex", alignItems:"stretch", gap:6 }}>
+              <div style={{ display:"flex", flexDirection:"column", alignItems:"center", flexShrink:0, width:15 }}>
+                <div style={{ width:15, height:15, borderRadius:"50%", border:`1.5px solid ${color}`, background:`rgba(${r},0.08)`, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                  <span style={{ fontSize:7, color, fontWeight:700 }}>{i+1}</span>
+                </div>
+                {i<steps.length-1 && <div style={{ width:1.5, flex:1, minHeight:6, background:`rgba(${r},0.2)` }} />}
+              </div>
+              <div style={{ paddingBottom:5, paddingTop:1 }}><span style={{ fontSize:8.5, color:"#374151", lineHeight:1.5 }}>{s}</span></div>
+            </div>
+          ))}
+        </div>
+      );
+    }
+
+    /* ─── Empty cell placeholder ──────────────────────────── */
+    function Empty() {
+      return (
+        <div style={{ display:"flex", alignItems:"center", justifyContent:"center", height:"100%", minHeight:48, opacity:0.2 }}>
+          <div style={{ width:22, height:1.5, background:"#CBD5E1", borderRadius:1 }} />
+        </div>
+      );
+    }
+
+    /* ─── AnimatedKpi count-up ────────────────────────────── */
+    function AnimatedKpi({ raw }) {
+      const [display, setDisplay] = useState(() => {
+        const m = raw.match(/^([^0-9]*)([0-9,]+\.?[0-9]*)(.*)$/);
+        return m ? "0" + m[3] : raw;
+      });
+      const rafRef = useRef(null);
+
+      useEffect(() => {
+        const m = raw.match(/^([^0-9]*)([0-9,]+\.?[0-9]*)(.*)$/);
+        if (!m) { setDisplay(raw); return; }
+        const numStr = m[2];
+        const suffix = m[3];
+        const num = parseFloat(numStr.replace(/,/g, ""));
+        const hasDecimal = numStr.includes(".");
+        const hasComma   = numStr.includes(",") && !hasDecimal;
+        const startTime  = performance.now();
+        const duration   = 1200;
+
+        function tick(now) {
+          const progress = Math.min((now - startTime) / duration, 1);
+          const eased    = 1 - Math.pow(1 - progress, 3); // ease-out cubic
+          const current  = num * eased;
+          let formatted;
+          if (hasDecimal)     formatted = current.toFixed(1);
+          else if (hasComma)  formatted = Math.round(current).toLocaleString();
+          else                formatted = Math.round(current).toString();
+          setDisplay(formatted + suffix);
+          if (progress < 1) rafRef.current = requestAnimationFrame(tick);
+        }
+
+        rafRef.current = requestAnimationFrame(tick);
+        return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current); };
+      }, [raw]);
+
+      return <span>{display}</span>;
+    }
+
+    /* ─── KpiCard ─────────────────────────────────────────── */
+    function KpiCard({ label, value, sub, color }) {
+      return (
+        <div style={{ background:"#FFFFFF", borderRadius:9, padding:"10px 14px", border:"1px solid #E5E7EB", borderLeft:`3px solid ${color}`, minWidth:120, boxShadow:"0 1px 4px rgba(0,0,0,0.06)" }}>
+          <div style={{ fontSize:20, fontWeight:800, color, lineHeight:1.1, marginBottom:3 }}>
+            <AnimatedKpi raw={value} />
+          </div>
+          <div style={{ fontSize:8.5, color:"#6B7280", marginBottom:2, lineHeight:1.3 }}>{label}</div>
+          <div style={{ fontSize:7.5, color:"#16A34A" }}>&#8593; {sub}</div>
+        </div>
+      );
+    }
+
+    /* ─── CellContent ─────────────────────────────────────── */
+    function CellContent({ lane, step }) {
+      const color = C[lane];
+      const r = rgb(color);
+
+      if (lane === "customer") {
+        if (step === 1) return (
+          <BpCard color={color} title="Search &amp; Book Flight" tag="TOUCHPOINT" items={["Searches available flights on VNA app","Selects SGN to Da Nang route","Enters LotusSmile loyalty profile","Taps Confirm Booking"]}>
+            <div style={{ marginTop:8, display:"flex", gap:5 }}><VNASearchScreen /><VNAConfirmScreen /></div>
+          </BpCard>
+        );
+        if (step === 2) return (
+          <div style={{ display:"flex", alignItems:"center", justifyContent:"center", minHeight:56, opacity:0.35 }}>
+            <div style={{ textAlign:"center" }}><div style={{ fontSize:18, marginBottom:3 }}>&#9203;</div><div style={{ fontSize:8, color:"#6B7280" }}>Awaiting data sync</div></div>
+          </div>
+        );
+        if (step === 3 || step === 4) return (
+          <div style={{ display:"flex", alignItems:"center", justifyContent:"center", minHeight:48, opacity:0.25 }}>
+            <div style={{ textAlign:"center" }}><div style={{ width:30, height:1.5, background:"#D1D5DB", borderRadius:1, margin:"0 auto 4px" }} /><div style={{ fontSize:7.5, color:"#9CA3AF" }}>Background processing</div></div>
+          </div>
+        );
+        if (step === 5) return (
+          <BpCard color={color} title="Receives Voucher Package" tag="KEY MOMENT" items={["Welcome email delivered to inbox","Push notification appears on phone","Voucher wallet pre-loaded with 3 offers"]}>
+            <div style={{ marginTop:7 }}><ShopeeEmailScreen /></div>
+            <div style={{ marginTop:6, display:"flex", alignItems:"center", gap:5, background:`rgba(${r},0.07)`, border:`1px solid rgba(${r},0.18)`, borderRadius:5, padding:"4px 7px" }}>
+              <span style={{ fontSize:10 }}>&#128070;</span><span style={{ fontSize:8.5, color }}>Tap "View Recommendations"</span>
+            </div>
+          </BpCard>
+        );
+        if (step === 6) return (
+          <BpCard color={color} title="Arrives in Da Nang" tag="KEY MOMENT" items={["Flight VN-216 lands in Da Nang","Receives arrival push from ShopeeFood","Opens ShopeeFood app from notification"]}>
+            <div style={{ marginTop:6 }}><PushNotifScreen /></div>
+          </BpCard>
+        );
+        if (step === 7) return (
+          <BpCard color={color} title="Discover &amp; Redeem" tag="CONVERSION MOMENT">
+            <Flow color={color} steps={["Tap arrival push notification","Open ShopeeFood app","View Da Nang food guide banner","Browse nearby restaurant list","Select restaurant and apply voucher","Complete food order"]} />
+            <div style={{ marginTop:8, display:"flex", gap:5, flexWrap:"wrap" }}><ShopeeHomeScreen /><RestaurantDetailScreen /></div>
+            <div style={{ marginTop:6, display:"flex", justifyContent:"center" }}><VoucherWalletScreen /></div>
+          </BpCard>
+        );
+        if (step === 8) return (
+          <BpCard color={color} title="Journey Complete" items={["Food orders fulfilled in Da Nang","LotusSmile miles updated cross-partner","Post-trip survey sent"]}>
+            <div style={{ marginTop:6, background:"rgba(22,163,74,0.07)", border:"1px solid rgba(22,163,74,0.18)", borderRadius:5, padding:"6px 8px", textAlign:"center" }}>
+              <div style={{ fontSize:8.5, color:"#16A34A", fontWeight:600 }}>&#10003; End-to-End Journey Completed</div>
+              <div style={{ fontSize:7.5, color:"#6B7280", marginTop:2 }}>Cross-platform retention achieved</div>
+            </div>
+          </BpCard>
+        );
+      }
+
+      if (lane === "vna") {
+        if (step === 1) return (
+          <BpCard color={color} title="Booking Confirmed" tag="SYSTEM EVENT" items={["Creates booking record in PMS","Generates travel itinerary","Updates LotusSmile profile","Stores trip metadata for partner share"]}>
+            <div style={{ marginTop:6, background:"#F8FAFC", border:`1px solid rgba(${r},0.2)`, borderRadius:5, padding:"5px 7px" }}>
+              {["status: CONFIRMED","route: SGN to DAD","tier: LotusSmile Silver","loyalty_id: LS_9F2K"].map((t,i)=>(
+                <div key={i} style={{ fontSize:7.5, color:i===0?color:"#6B7280", fontFamily:"'JetBrains Mono', monospace" }}>{t}</div>
+              ))}
+            </div>
+          </BpCard>
+        );
+        if (step === 2) return (
+          <BpCard color={color} title="Trigger Partner API Event" tag="INTEGRATION POINT">
+            <div style={{ marginTop:5, display:"flex", alignItems:"center", gap:6, background:`rgba(${r},0.06)`, border:`1px solid rgba(${r},0.18)`, borderRadius:6, padding:7 }}>
+              <div style={{ width:9, height:9, borderRadius:"50%", background:color, boxShadow:`0 0 7px rgba(${r},0.5)`, flexShrink:0 }} />
+              <div><div style={{ fontSize:8.5, color, fontWeight:600 }}>Data Push Event fired</div><div style={{ fontSize:7.5, color:"#6B7280" }}>Dispatching payload to ShopeeFood</div></div>
+            </div>
+            <div style={{ marginTop:5, display:"flex", gap:4 }}>
+              {["Profile","Itinerary","Metadata"].map((t,i)=>(
+                <div key={i} style={{ flex:1, background:`rgba(${r},0.06)`, borderRadius:4, padding:"3px 4px", textAlign:"center", border:`1px solid rgba(${r},0.12)` }}>
+                  <div style={{ fontSize:7, color }}>{t}</div>
+                </div>
+              ))}
+            </div>
+          </BpCard>
+        );
+        if (step === 8) return <BpCard color={color} title="Loyalty &amp; Attribution" items={["Update cross-partner miles earned","Record ShopeeFood order attribution","Enrich traveler LotusSmile profile"]} />;
+        return <Empty />;
+      }
+
+      if (lane === "api") {
+        if (step === 2) return (
+          <BpCard color={color} title="Customer Data Transfer" tag="API REQUEST">
+            <ApiFlow fields={[{k:"customer_id",v:'"LS_9F2KL"'},{k:"destination",v:'"DAD"'},{k:"depart_date",v:'"2026-07-20"'},{k:"return_date",v:'"2026-07-24"'},{k:"duration_days",v:"4"},{k:"loyalty_tier",v:'"silver"'},{k:"city_name",v:'"Da Nang"'}]} />
+          </BpCard>
+        );
+        if (step === 3) return (
+          <BpCard color={color} title="Data Received &amp; Validated" items={["Schema validation passed","Customer profile matched in SF DB","Trip metadata successfully parsed"]}>
+            <div style={{ marginTop:5, background:"#F8FAFC", border:`1px solid rgba(${r},0.18)`, borderRadius:4, padding:5 }}>
+              {["validation: passed","city_supported: true","audience_ready: true"].map((t,i)=>(
+                <div key={i} style={{ fontSize:7.5, fontFamily:"'JetBrains Mono', monospace", color:i===0?color:"#6B7280" }}>{t}</div>
+              ))}
+            </div>
+          </BpCard>
+        );
+        if (step === 6) return (
+          <BpCard color={color} title="Arrival Date Trigger" tag="CRON EVENT" items={["Cron fires on scheduled arrival date","Emits ARRIVAL_REACHED event","Activates ShopeeFood travel campaign"]}>
+            <div style={{ marginTop:5, background:"#F8FAFC", border:`1px solid rgba(${r},0.18)`, borderRadius:4, padding:5 }}>
+              {[{t:"event: ARRIVAL_REACHED",c:color},{t:"status: dispatched",c:"#059669"},{t:'city: "Da Nang"',c:"#6B7280"}].map((x,i)=>(
+                <div key={i} style={{ fontSize:7.5, fontFamily:"'JetBrains Mono', monospace", color:x.c }}>{x.t}</div>
+              ))}
+            </div>
+          </BpCard>
+        );
+        if (step === 8) return <BpCard color={color} title="Attribution Sync" items={["Sync engagement data to VNA","Reconcile GMV attribution","Update cross-platform reporting"]} />;
+        return <Empty />;
+      }
+
+      if (lane === "sfbe") {
+        if (step === 3) return (
+          <BpCard color={color} title="Journey Detection Engine" tag="ML PIPELINE" items={["Captures inbound travel payload","Identifies destination: Da Nang","Calculates trip duration: 4 days","Creates traveler audience segment"]}>
+            <Diamond label="Destination Supported?" color={color} />
+          </BpCard>
+        );
+        if (step === 4) return (
+          <BpCard color={color} title="AI Voucher Generation" tag="RECOMMENDATION ENGINE" items={["Selects top restaurants near DAD","Identifies local specialties","Generates tiered voucher pack","Matches offer value to 4-day trip"]}>
+            <div style={{ marginTop:6, background:`rgba(${r},0.05)`, border:`1px solid rgba(${r},0.15)`, borderRadius:5, padding:"5px 7px" }}>
+              <div style={{ fontSize:8.5, color, fontWeight:600, marginBottom:3 }}>Generated Package</div>
+              {["5 restaurants · local specialties","Voucher pack · 50K / 35K / 20K","Limited-time · Expires 24 Jul 2026","Geo-targeted: Da Nang City Centre"].map((item,i)=>(
+                <div key={i} style={{ fontSize:8, color:"#6B7280", marginBottom:2 }}>{item}</div>
+              ))}
+            </div>
+          </BpCard>
+        );
+        if (step === 5) return <BpCard color={color} title="Dispatch to Channels" items={["Queue email campaign (SendGrid)","Schedule push notification (FCM/APNS)","Pre-load ShopeeFood voucher wallet","Log all delivery events to analytics"]} />;
+        if (step === 6) return (
+          <BpCard color={color} title="Arrival Campaign Activated" tag="AUTOMATION" items={["Travel reminder workflow fires","Sends arrival push notification","Surfaces geo-relevant food deals"]}>
+            <div style={{ marginTop:5, background:"#F8FAFC", border:`1px solid rgba(${r},0.18)`, borderRadius:4, padding:5 }}>
+              <div style={{ fontSize:7.5, fontFamily:"'JetBrains Mono', monospace", color }}>workflow: travel_arrival_v2</div>
+              <div style={{ fontSize:7.5, fontFamily:"'JetBrains Mono', monospace", color:"#059669" }}>status: triggered</div>
+            </div>
+          </BpCard>
+        );
+        if (step === 7) return <BpCard color={color} title="Real-time Engagement Tracking" items={["Push notification click event logged","Restaurant page view events tracked","Voucher add-to-cart captured","Order completion webhook fired"]} />;
+        if (step === 8) return (
+          <BpCard color={color} title="Campaign KPI Dashboard" tag="ANALYTICS">
+            <div style={{ marginTop:4 }}>
+              {[
+                {l:"Voucher Open Rate", v:"68%",      c:"#818CF8"},
+                {l:"Redemption Rate",  v:"34%",      c:"#0891B2"},
+                {l:"Restaurant CTR",   v:"51%",      c:"#D97706"},
+                {l:"Orders Generated", v:"2,847",    c:"#EA580C"},
+                {l:"Revenue (GMV)",    v:"142M VND", c:"#EE4D2D"},
+              ].map((kpi,i)=>(
+                <div key={i} style={{ display:"flex", justifyContent:"space-between", padding:"3px 0", borderBottom:i<4?"1px solid rgba(0,0,0,0.06)":"none" }}>
+                  <span style={{ fontSize:8, color:"#6B7280" }}>{kpi.l}</span>
+                  <span style={{ fontSize:8.5, fontWeight:700, color:kpi.c }}>{kpi.v}</span>
+                </div>
+              ))}
+            </div>
+          </BpCard>
+        );
+        return <Empty />;
+      }
+
+      if (lane === "sfapp") {
+        if (step === 4) return (
+          <BpCard color={color} title="Voucher Pack Preview" items={["Email template rendered and staged","Push notification payload queued","Wallet pre-loaded with 3 vouchers"]}>
+            <div style={{ marginTop:6 }}><VoucherWalletScreen /></div>
+          </BpCard>
+        );
+        if (step === 5) return (
+          <BpCard color={color} title="Multi-Channel Delivery" tag="CHANNEL A + B">
+            <div style={{ display:"flex", gap:4, marginTop:4 }}>
+              {[{icon:"&#128140;",label:"Email",sub:"Food guide + vouchers"},{icon:"&#128241;",label:"App Push",sub:"Notification + wallet"}].map((ch,i)=>(
+                <div key={i} style={{ flex:1, background:`rgba(${r},0.05)`, border:`1px solid rgba(${r},0.15)`, borderRadius:6, padding:5, textAlign:"center" }}>
+                  <div style={{ fontSize:13, marginBottom:2 }} dangerouslySetInnerHTML={{__html:ch.icon}} />
+                  <div style={{ fontSize:7.5, color, fontWeight:600 }}>{ch.label}</div>
+                  <div style={{ fontSize:6.5, color:"#6B7280" }}>{ch.sub}</div>
+                </div>
+              ))}
+            </div>
+            <div style={{ marginTop:7 }}><ShopeeEmailScreen /></div>
+          </BpCard>
+        );
+        if (step === 6) return (
+          <BpCard color={color} title="Arrival Push Notification" tag="TRIGGERED COMMS" subtitle="Welcome to Da Nang! Explore local specialties with exclusive offers from ShopeeFood.">
+            <div style={{ marginTop:6 }}><PushNotifScreen /></div>
+          </BpCard>
+        );
+        if (step === 7) return (
+          <BpCard color={color} title="In-App Experience" items={["Home screen: Travel deals banner","Map view: Nearby restaurant list","Restaurant detail + voucher applied","Voucher redemption confirmation screen"]}>
+            <div style={{ marginTop:8, display:"flex", gap:5, flexWrap:"wrap" }}><ShopeeHomeScreen /><RestaurantDetailScreen /></div>
+          </BpCard>
+        );
+        return <Empty />;
+      }
+
+      return <Empty />;
+    }
+
+    /* ─── Data ────────────────────────────────────────────── */
+    const LANES = [
+      { key:"customer", icon:"👤", lines:["Customer"],                               color:C.customer, bg:"rgba(79,70,229,0.035)"   },
+      { key:"vna",      icon:"✈️", lines:["Vietnam Airlines","(Lotus Smile)"],        color:C.vna,      bg:"rgba(217,119,6,0.035)"   },
+      { key:"api",      icon:"⚡", lines:["API / Data","Integration Layer"],          color:C.api,      bg:"rgba(8,145,178,0.035)"   },
+      { key:"sfbe",     icon:"⚙️", lines:["ShopeeFood Backend","& Campaign Engine"],  color:C.sfbe,     bg:"rgba(234,88,12,0.035)"   },
+      { key:"sfapp",    icon:"📱", lines:["ShopeeFood App /","Email Channel"],        color:C.sfapp,    bg:"rgba(238,77,45,0.035)"   },
+    ];
+    const STEPS = ["Flight Booking","Data Sharing","Journey Detection","Voucher Generation","Delivery","Arrival Detection","Discover & Redeem","Trip Completion"];
+    const PHASES = [
+      { label:"BOOKING",          count:2, color:C.vna      },
+      { label:"BEFORE DEPARTURE", count:3, color:C.api      },
+      { label:"ARRIVAL",          count:1, color:C.sfbe     },
+      { label:"IN-DESTINATION",   count:1, color:C.sfapp    },
+      { label:"RETURN",           count:1, color:C.customer },
+    ];
+
+    function getPhaseRange(phaseIdx) {
+      let start = 0;
+      for (let i = 0; i < phaseIdx; i++) start += PHASES[i].count;
+      return { start, end: start + PHASES[phaseIdx].count };
+    }
+
+    /* ─── App ─────────────────────────────────────────────── */
+    function App() {
+      const [hoveredStep,  setHoveredStep]  = useState(null);
+      const [activeStep,   setActiveStep]   = useState(null);
+      const [activeLane,   setActiveLane]   = useState(null);
+      const [activePhase,  setActivePhase]  = useState(null);
+
+      /* keyboard nav */
+      useEffect(() => {
+        function onKey(e) {
+          if (e.key === "ArrowRight") {
+            setActiveStep(s => s === null ? 0 : Math.min(s + 1, STEPS.length - 1));
+            setActivePhase(null);
+          } else if (e.key === "ArrowLeft") {
+            setActiveStep(s => s === null ? STEPS.length - 1 : Math.max(s - 1, 0));
+            setActivePhase(null);
+          } else if (e.key === "Escape") {
+            setActiveStep(null);
+            setActiveLane(null);
+            setActivePhase(null);
+          }
+        }
+        window.addEventListener("keydown", onKey);
+        return () => window.removeEventListener("keydown", onKey);
+      }, []);
+
+      function handleStepClick(i) {
+        setActiveStep(s => s === i ? null : i);
+        setActivePhase(null);
+      }
+      function handleLaneClick(key) {
+        setActiveLane(l => l === key ? null : key);
+      }
+      function handlePhaseClick(i) {
+        setActivePhase(p => p === i ? null : i);
+        setActiveStep(null);
+      }
+
+      const phaseRange = activePhase !== null ? getPhaseRange(activePhase) : null;
+
+      function colIsActive(si) {
+        if (activeStep !== null) return activeStep === si;
+        if (phaseRange) return si >= phaseRange.start && si < phaseRange.end;
+        return false;
+      }
+
+      return (
+        <div style={{ minHeight:"100vh", background:"#FAFAFA", fontFamily:"'Plus Jakarta Sans', system-ui, sans-serif", color:"#111827" }}>
+
+          {/* ── HEADER ── */}
+          <div style={{ background:"#FFFFFF", borderBottom:"2px solid #EE4D2D", padding:"18px 28px 16px", position:"sticky", top:0, zIndex:50, boxShadow:"0 2px 10px rgba(0,0,0,0.07)" }}>
+            <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:13, flexWrap:"wrap" }}>
+              {/* VNA badge */}
+              <div style={{ display:"flex", alignItems:"center", gap:8, background:"rgba(217,119,6,0.07)", border:"1px solid rgba(217,119,6,0.22)", borderRadius:8, padding:"5px 11px" }}>
+                <span style={{ fontSize:17 }}>&#127800;</span>
+                <div>
+                  <div style={{ fontSize:10, fontWeight:700, color:C.vna }}>Vietnam Airlines</div>
+                  <div style={{ fontSize:8, color:"#9CA3AF" }}>Lotus Smile Program</div>
+                </div>
+              </div>
+              <span style={{ color:"#D1D5DB", fontSize:18 }}>&#10005;</span>
+              {/* ShopeeFood badge */}
+              <div style={{ display:"flex", alignItems:"center", gap:8, background:"rgba(238,77,45,0.07)", border:"1px solid rgba(238,77,45,0.22)", borderRadius:8, padding:"5px 11px" }}>
+                <div style={{ width:22, height:22, background:"#EE4D2D", borderRadius:5, display:"flex", alignItems:"center", justifyContent:"center" }}>
+                  <span style={{ fontSize:11 }}>&#127836;</span>
+                </div>
+                <div>
+                  <div style={{ fontSize:10, fontWeight:700, color:"#EE4D2D" }}>ShopeeFood</div>
+                  <div style={{ fontSize:8, color:"#9CA3AF" }}>Food Delivery Platform</div>
+                </div>
+              </div>
+              <div style={{ marginLeft:"auto", display:"flex", gap:6, flexWrap:"wrap" }}>
+                {["UX Service Blueprint","Product Workflow v1.0","Journey Map · 8 Steps"].map((t,i)=>(
+                  <div key={i} style={{ background:"#F3F4F6", border:"1px solid #E5E7EB", borderRadius:5, padding:"2.5px 8px" }}>
+                    <span style={{ fontSize:8, color:"#6B7280" }}>{t}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <h1 style={{ fontSize:19, fontWeight:800, color:"#111827", margin:"0 0 2px", letterSpacing:"-0.5px", lineHeight:1.3 }}>
+              Vietnam Airlines × ShopeeFood
+              <span style={{ display:"block", fontSize:13, fontWeight:400, color:"#6B7280", letterSpacing:0, marginTop:2 }}>
+                Travel Journey &amp; Voucher Recommendation Experience — End-to-End Service Blueprint
+              </span>
+            </h1>
+            <div style={{ display:"flex", gap:7, marginTop:11, flexWrap:"wrap", alignItems:"center" }}>
+              <span style={{ fontSize:7.5, color:"#9CA3AF", fontWeight:700, letterSpacing:0.5 }}>ACTORS:</span>
+              {LANES.map(l=>(
+                <div key={l.key} style={{ display:"flex", alignItems:"center", gap:5, background:`rgba(${rgb(l.color)},0.07)`, border:`1px solid rgba(${rgb(l.color)},0.22)`, borderRadius:16, padding:"2px 8px 2px 5px" }}>
+                  <div style={{ width:7, height:7, borderRadius:"50%", background:l.color }} />
+                  <span style={{ fontSize:7.5, color:l.color, fontWeight:600 }}>{l.lines[0]}</span>
+                </div>
+              ))}
+              <div style={{ width:1, height:14, background:"#E5E7EB", margin:"0 2px" }} />
+              {[{icon:"&#9826;",label:"Decision Node",color:"#6B7280"},{icon:"&#10022;",label:"Key Moment",color:C.vna},{icon:"&#9733;",label:"Conversion",color:"#EE4D2D"}].map((t,i)=>(
+                <div key={i} style={{ display:"flex", alignItems:"center", gap:4, background:"#F9FAFB", border:"1px solid #E5E7EB", borderRadius:16, padding:"2px 8px 2px 5px" }}>
+                  <span style={{ fontSize:9, color:t.color }} dangerouslySetInnerHTML={{__html:t.icon}} />
+                  <span style={{ fontSize:7.5, color:"#6B7280", fontWeight:600 }}>{t.label}</span>
+                </div>
+              ))}
+              {/* keyboard hint */}
+              <div style={{ marginLeft:"auto", fontSize:7.5, color:"#CBD5E1", display:"flex", alignItems:"center", gap:4 }}>
+                <kbd style={{ background:"#F3F4F6", border:"1px solid #E5E7EB", borderRadius:3, padding:"1px 4px", fontSize:7, color:"#9CA3AF" }}>←→</kbd>
+                <span>navigate</span>
+                <kbd style={{ background:"#F3F4F6", border:"1px solid #E5E7EB", borderRadius:3, padding:"1px 4px", fontSize:7, color:"#9CA3AF" }}>Esc</kbd>
+                <span>clear</span>
+              </div>
+            </div>
+          </div>
+
+          {/* ── GRID ── */}
+          <div style={{ overflowX:"auto", background:"#FFFFFF" }}>
+            <div style={{ minWidth:LABEL_W+CELL_W*8+56, padding:"0 28px 80px" }}>
+
+              {/* Phase bars */}
+              <div style={{ display:"flex", marginLeft:LABEL_W, paddingTop:14 }}>
+                {PHASES.map((p,i)=>{
+                  const pR = rgb(p.color);
+                  return (
+                    <div
+                      key={i}
+                      onClick={() => handlePhaseClick(i)}
+                      style={{
+                        width: CELL_W * p.count,
+                        borderTop: `3px solid ${p.color}`,
+                        paddingTop:5, paddingLeft:10, paddingBottom:6,
+                        cursor:"pointer",
+                        background: activePhase===i ? `rgba(${pR},0.07)` : "transparent",
+                        borderLeft: i>0 ? "1px solid #F3F4F6" : "none",
+                        transition:"background 0.18s",
+                        userSelect:"none",
+                        borderRadius: activePhase===i ? "0 0 4px 4px" : 0,
+                      }}
+                    >
+                      <span style={{ fontSize:7.5, color:p.color, fontWeight: activePhase===i ? 800 : 700, letterSpacing:0.8 }}>{p.label}</span>
+                      {activePhase===i && <span style={{ fontSize:7, color:p.color, marginLeft:5, opacity:0.7 }}>▼</span>}
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Step header row */}
+              <div style={{ display:"flex", marginBottom:2, background:"#FAFAFA", borderBottom:"1px solid #F3F4F6" }}>
+                <div style={{ width:LABEL_W, flexShrink:0, padding:"6px 10px", display:"flex", alignItems:"center" }}>
+                  <span style={{ fontSize:8, color:"#9CA3AF", fontWeight:700, letterSpacing:0.5 }}>SWIMLANE</span>
+                </div>
+                {STEPS.map((s,i)=>(
+                  <div
+                    key={i}
+                    onClick={() => handleStepClick(i)}
+                    onMouseEnter={() => setHoveredStep(i)}
+                    onMouseLeave={() => setHoveredStep(null)}
+                    style={{
+                      width:CELL_W, flexShrink:0, padding:"7px 10px",
+                      borderLeft:"1px solid #F3F4F6",
+                      borderTop: activeStep===i ? "2px solid #EE4D2D" : "2px solid transparent",
+                      background: activeStep===i
+                        ? "rgba(238,77,45,0.06)"
+                        : hoveredStep===i ? "#F9FAFB" : "transparent",
+                      cursor:"pointer",
+                      transition:"background 0.15s",
+                      opacity: activeStep!==null && activeStep!==i ? 0.5 : 1,
+                      userSelect:"none",
+                    }}
+                  >
+                    <div style={{ fontSize:7.5, color: activeStep===i ? "#EE4D2D" : "#9CA3AF", fontWeight:700, marginBottom:1.5 }}>STEP {i+1}</div>
+                    <div style={{ fontSize:9.5, color: activeStep===i ? "#111827" : "#374151", fontWeight:600 }}>{s}</div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Lane rows */}
+              {LANES.map((lane)=>(
+                <div
+                  key={lane.key}
+                  style={{
+                    display:"flex",
+                    borderTop:`1px solid rgba(${rgb(lane.color)},0.12)`,
+                    opacity: activeLane!==null && activeLane!==lane.key ? 0.35 : 1,
+                    transition:"opacity 0.22s",
+                  }}
+                >
+                  {/* Lane label */}
+                  <div
+                    onClick={() => handleLaneClick(lane.key)}
+                    style={{
+                      width:LABEL_W, flexShrink:0, padding:"14px 12px",
+                      background: activeLane===lane.key ? `rgba(${rgb(lane.color)},0.09)` : lane.bg,
+                      borderRight:`2px solid rgba(${rgb(lane.color)},0.22)`,
+                      display:"flex", flexDirection:"column", justifyContent:"center", gap:5,
+                      cursor:"pointer", transition:"background 0.15s", userSelect:"none",
+                    }}
+                  >
+                    <div style={{ display:"flex", alignItems:"center", gap:8 }}>
+                      <div style={{ width:32, height:32, borderRadius:"50%", background:`rgba(${rgb(lane.color)},0.09)`, border:`2px solid rgba(${rgb(lane.color)},0.3)`, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0, fontSize:15 }}>{lane.icon}</div>
+                      <div>
+                        {lane.lines.map((line,li)=>(
+                          <div key={li} style={{ fontSize:li===0?10.5:9, fontWeight:li===0?700:400, color:li===0?lane.color:"#9CA3AF", lineHeight:1.35 }}>{line}</div>
+                        ))}
+                      </div>
+                    </div>
+                    {activeLane===lane.key && (
+                      <div style={{ fontSize:7, color:lane.color, opacity:0.7, marginLeft:40 }}>focused ▶</div>
+                    )}
+                  </div>
+
+                  {/* Step cells */}
+                  {Array.from({length:8},(_,si)=>{
+                    const active = colIsActive(si);
+                    const hovered = hoveredStep===si;
+                    const rStr = rgb(lane.color);
+                    let bg;
+                    if (active)        bg = "rgba(238,77,45,0.04)";
+                    else if (hovered)  bg = `rgba(${rStr},0.04)`;
+                    else               bg = si%2===0 ? `rgba(${rStr},0.015)` : lane.bg;
+                    return (
+                      <div
+                        key={si}
+                        style={{
+                          width:CELL_W, flexShrink:0, padding:"12px 8px",
+                          borderLeft:"1px solid #F3F4F6",
+                          borderTop: active ? "1.5px solid rgba(238,77,45,0.25)" : "1.5px solid transparent",
+                          borderBottom: active ? "1.5px solid rgba(238,77,45,0.25)" : "1.5px solid transparent",
+                          background: bg,
+                          transition:"background 0.15s",
+                          minHeight:100,
+                        }}
+                      >
+                        <CellContent lane={lane.key} step={si+1} />
+                      </div>
+                    );
+                  })}
+                </div>
+              ))}
+
+              {/* KPI section */}
+              <div style={{ marginTop:24, borderTop:"1px solid #E5E7EB", paddingTop:18 }}>
+                <div style={{ marginLeft:LABEL_W, paddingLeft:10 }}>
+                  <div style={{ fontSize:8.5, color:"#9CA3AF", fontWeight:700, letterSpacing:0.8, marginBottom:12 }}>&#128202; KPI MEASUREMENT LAYER — CAMPAIGN PERFORMANCE</div>
+                  <div style={{ display:"flex", gap:10, flexWrap:"wrap" }}>
+                    {[
+                      {label:"Voucher Open Rate",  value:"68%",   sub:"+12% vs baseline",    color:"#818CF8"},
+                      {label:"Redemption Rate",    value:"34%",   sub:"+8% vs avg",           color:"#0891B2"},
+                      {label:"Restaurant CTR",     value:"51%",   sub:"+15% vs avg",          color:C.vna    },
+                      {label:"Orders Generated",   value:"2,847", sub:"in pilot period",      color:C.sfbe   },
+                      {label:"Revenue (GMV)",      value:"142M",  sub:"campaign attributed",  color:C.sfapp  },
+                      {label:"API Uptime",         value:"99.2%", sub:"LotusSmile sync",      color:"#059669"},
+                      {label:"Avg. Order Value",   value:"78K",   sub:"+22% with voucher",    color:"#7C3AED"},
+                      {label:"Return Order Rate",  value:"61%",   sub:"repeat after trip",    color:"#0284C7"},
+                    ].map((k,i)=>(
+                      <KpiCard key={i} label={k.label} value={k.value} sub={k.sub} color={k.color} />
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Footer meta */}
+              <div style={{ marginTop:24, marginLeft:LABEL_W, paddingLeft:10 }}>
+                <div style={{ display:"flex", gap:20, flexWrap:"wrap", borderTop:"1px solid #E5E7EB", paddingTop:14 }}>
+                  {["Diagram Type: UX Service Blueprint + Product Workflow + Journey Map","Version: 1.0 · July 2026","Stakeholders: Product · Design · Engineering · Partnership","Scope: SGN to DAD · 4-day trip · Pilot campaign"].map((t,i)=>(
+                    <span key={i} style={{ fontSize:8, color:"#CBD5E1" }}>{t}</span>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* ── STEP NAVIGATOR (floating pill) ── */}
+          <div style={{
+            position:"fixed", bottom:24, left:"50%", transform:"translateX(-50%)",
+            zIndex:100, background:"#FFFFFF", border:"1px solid #E5E7EB",
+            borderRadius:999, padding:"8px 18px",
+            boxShadow:"0 4px 24px rgba(0,0,0,0.13)",
+            display:"flex", alignItems:"center", gap:12, userSelect:"none", whiteSpace:"nowrap",
+          }}>
+            {activeStep !== null ? (
+              <>
+                <button
+                  onClick={() => setActiveStep(s => Math.max(s-1, 0))}
+                  disabled={activeStep===0}
+                  style={{
+                    background: activeStep===0 ? "#F3F4F6" : "#EE4D2D",
+                    color: activeStep===0 ? "#9CA3AF" : "#FFF",
+                    border:"none", borderRadius:999, padding:"4px 12px",
+                    cursor: activeStep===0 ? "not-allowed" : "pointer",
+                    fontSize:9, fontWeight:700, transition:"background 0.15s",
+                  }}
+                >&#8592; Prev</button>
+                <div style={{ textAlign:"center", minWidth:120 }}>
+                  <div style={{ fontSize:9, color:"#111827", fontWeight:700 }}>Step {activeStep+1}/{STEPS.length}</div>
+                  <div style={{ fontSize:7.5, color:"#6B7280", marginTop:1 }}>{STEPS[activeStep]}</div>
+                </div>
+                <button
+                  onClick={() => setActiveStep(s => Math.min(s+1, STEPS.length-1))}
+                  disabled={activeStep===STEPS.length-1}
+                  style={{
+                    background: activeStep===STEPS.length-1 ? "#F3F4F6" : "#EE4D2D",
+                    color: activeStep===STEPS.length-1 ? "#9CA3AF" : "#FFF",
+                    border:"none", borderRadius:999, padding:"4px 12px",
+                    cursor: activeStep===STEPS.length-1 ? "not-allowed" : "pointer",
+                    fontSize:9, fontWeight:700, transition:"background 0.15s",
+                  }}
+                >Next &#8594;</button>
+                <button
+                  onClick={() => { setActiveStep(null); setActiveLane(null); setActivePhase(null); }}
+                  style={{ background:"none", border:"1px solid #E5E7EB", borderRadius:999, padding:"3px 8px", cursor:"pointer", fontSize:8, color:"#9CA3AF" }}
+                >&#10005;</button>
+              </>
+            ) : (
+              <span style={{ fontSize:8.5, color:"#9CA3AF", padding:"1px 4px" }}>
+                &#128161; Click a column to focus &nbsp;·&nbsp; &#8592; &#8594; navigate &nbsp;·&nbsp; Esc to clear
+              </span>
+            )}
+          </div>
+
+        </div>
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById("root"));
+    root.render(<App />);
+  </script>
+</body>
+</html>
